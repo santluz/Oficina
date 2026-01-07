@@ -6,9 +6,12 @@ import { ServiceOrder, ServiceOrderStatus, Service, ServiceOrderItem } from '../
 import { Edit, Trash2, X, Plus } from '../constants';
 import { getStatusStyles } from './Dashboard';
 import { useToast } from '../components/Toast';
+import { AlertDialog } from '../components/AlertDialog';
 
 const ServiceOrders: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [editingOS, setEditingOS] = useState<ServiceOrder | null>(null);
   const [orders, setOrders] = useState<ServiceOrder[]>(db.getOrders());
   const { showToast } = useToast();
@@ -103,11 +106,17 @@ const ServiceOrders: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Deseja excluir permanentemente esta OS?')) {
-      db.deleteOrder(id);
+  const confirmDelete = (id: string) => {
+    setOrderToDelete(id);
+    setIsAlertOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (orderToDelete) {
+      db.deleteOrder(orderToDelete);
       setOrders(db.getOrders());
       showToast("🗑️ Ordem de Serviço removida.", "info");
+      setOrderToDelete(null);
     }
   };
 
@@ -147,7 +156,7 @@ const ServiceOrders: React.FC = () => {
       accessor: (o: ServiceOrder) => (
         <div className="flex items-center gap-2">
           <button onClick={() => handleOpenModal(o)} className="p-2 text-zinc-400 hover:text-cyan-500 hover:bg-zinc-800 rounded-lg transition-all"><Edit size={16} /></button>
-          <button onClick={() => handleDelete(o.id)} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-lg transition-all"><Trash2 size={16} /></button>
+          <button onClick={() => confirmDelete(o.id)} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-lg transition-all"><Trash2 size={16} /></button>
         </div>
       ),
       className: 'text-right'
@@ -162,6 +171,18 @@ const ServiceOrders: React.FC = () => {
         columns={columns}
         onAdd={() => handleOpenModal()}
         addButtonLabel="Nova OS"
+      />
+
+      {/* Alerta de Confirmação */}
+      <AlertDialog 
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        onConfirm={handleDelete}
+        title="Remover Ordem de Serviço?"
+        description="Esta ação não pode ser desfeita. Todos os dados desta Ordem de Serviço serão permanentemente removidos do sistema."
+        confirmLabel="Excluir OS"
+        cancelLabel="Voltar"
+        variant="danger"
       />
 
       {isModalOpen && (
