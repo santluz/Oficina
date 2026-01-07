@@ -23,14 +23,9 @@ const Landing: React.FC = () => {
             <div className={`w-8 h-8 bg-${COLORS.primary} rounded-lg flex items-center justify-center`}>
               <Wrench size={18} className="text-white" />
             </div>
-            <span className="text-xl font-bold">Oficina Pro</span>
+            <span className="text-xl font-bold">JV Automóveis</span>
           </div>
-          <Link 
-            to="/auth" 
-            className={`px-4 py-2 bg-${COLORS.primary} hover:bg-${COLORS.primaryHover} text-white rounded-lg font-medium transition-all`}
-          >
-            Acessar Sistema
-          </Link>
+          {/* Botão removido da parte superior conforme solicitação */}
         </div>
       </nav>
 
@@ -46,19 +41,16 @@ const Landing: React.FC = () => {
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-10">
             Centralize clientes, veículos e serviços em um único lugar. 
-            Simplifique sua gestão, reduza erros e lucre mais com o Oficina Pro.
+            Simplifique sua gestão, reduza erros e lucre mais com o JV Automóveis.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link 
               to="/auth" 
-              className={`flex items-center justify-center gap-2 bg-${COLORS.primary} hover:bg-${COLORS.primaryHover} text-white px-8 py-4 rounded-xl font-semibold transition-all hover:scale-105`}
+              className={`flex items-center justify-center gap-2 bg-${COLORS.primary} hover:bg-${COLORS.primaryHover} text-white px-10 py-4 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-cyan-500/20`}
             >
-              Comece Agora Gratuitamente
+              Acessar Sistema
               <ChevronRight size={20} />
             </Link>
-            <button className="px-8 py-4 rounded-xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 transition-all">
-              Ver Demonstração
-            </button>
           </div>
         </div>
       </section>
@@ -67,7 +59,7 @@ const Landing: React.FC = () => {
       <section className="py-24 bg-zinc-900/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Por que escolher o Oficina Pro?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Por que escolher o JV Automóveis?</h2>
             <p className="text-zinc-400">Tudo o que você precisa para uma gestão moderna e eficiente.</p>
           </div>
 
@@ -113,9 +105,9 @@ const Landing: React.FC = () => {
             <div className={`w-6 h-6 bg-${COLORS.primary} rounded flex items-center justify-center`}>
               <Wrench size={14} className="text-white" />
             </div>
-            <span className="font-bold">Oficina Pro</span>
+            <span className="font-bold">JV Automóveis</span>
           </div>
-          <p className="text-sm text-zinc-500">© 2024 Oficina Pro. Todos os direitos reservados.</p>
+          <p className="text-sm text-zinc-500">© 2024 JV Automóveis. Todos os direitos reservados.</p>
           <div className="flex gap-6 text-sm text-zinc-400">
             <a href="#" className="hover:text-white">Termos</a>
             <a href="#" className="hover:text-white">Privacidade</a>

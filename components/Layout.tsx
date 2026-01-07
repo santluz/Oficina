@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className={`w-8 h-8 bg-${COLORS.primary} rounded-lg flex items-center justify-center`}>
               <Wrench size={18} className="text-white" />
             </div>
-            <span className="text-xl font-bold text-zinc-100">Oficina Pro</span>
+            <span className="text-xl font-bold text-zinc-100">JV Automóveis</span>
           </Link>
         </div>
 
