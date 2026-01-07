@@ -20,14 +20,19 @@ const ServiceOrders: React.FC = () => {
   const allVehicles = db.getVehicles();
   const catalogServices = db.getServices();
 
-  const [formData, setFormData] = useState<Partial<ServiceOrder>>({
+  // Inicialização completa para evitar erros de tipagem parcial
+  const initialFormData: Omit<ServiceOrder, 'id' | 'created_at'> = {
+    user_id: 'u1',
     cliente_id: '',
     veiculo_id: '',
     status: ServiceOrderStatus.PENDING,
     observacoes: '',
     servicos: [],
-    orcamento_total: 0
-  });
+    orcamento_total: 0,
+    data_entrada: new Date().toISOString().split('T')[0]
+  };
+
+  const [formData, setFormData] = useState<Omit<ServiceOrder, 'id' | 'created_at'>>(initialFormData);
 
   const filteredVehicles = useMemo(() => {
     return allVehicles.filter(v => v.cliente_id === formData.cliente_id);
@@ -40,18 +45,19 @@ const ServiceOrders: React.FC = () => {
   const handleOpenModal = (order?: ServiceOrder) => {
     if (order) {
       setEditingOS(order);
-      setFormData({ ...order });
+      setFormData({
+        user_id: order.user_id,
+        cliente_id: order.cliente_id,
+        veiculo_id: order.veiculo_id,
+        status: order.status,
+        observacoes: order.observacoes || '',
+        servicos: [...order.servicos],
+        orcamento_total: order.orcamento_total,
+        data_entrada: order.data_entrada
+      });
     } else {
       setEditingOS(null);
-      setFormData({
-        cliente_id: '',
-        veiculo_id: '',
-        status: ServiceOrderStatus.PENDING,
-        observacoes: '',
-        servicos: [],
-        orcamento_total: 0,
-        data_entrada: new Date().toISOString().split('T')[0]
-      });
+      setFormData(initialFormData);
     }
     setIsModalOpen(true);
   };
@@ -65,7 +71,7 @@ const ServiceOrders: React.FC = () => {
       preco_unitario: service.preco_base || 0,
       subtotal: service.preco_base || 0
     };
-    const updatedServices = [...(formData.servicos || []), newService];
+    const updatedServices = [...formData.servicos, newService];
     setFormData({ 
       ...formData, 
       servicos: updatedServices,
@@ -74,7 +80,7 @@ const ServiceOrders: React.FC = () => {
   };
 
   const removeServiceFromOS = (id: string) => {
-    const updatedServices = (formData.servicos || []).filter(s => s.id !== id);
+    const updatedServices = formData.servicos.filter(s => s.id !== id);
     setFormData({ 
       ...formData, 
       servicos: updatedServices,
@@ -89,17 +95,11 @@ const ServiceOrders: React.FC = () => {
         return;
     }
 
-    const payload = {
-        ...formData,
-        user_id: 'u1',
-        data_entrada: formData.data_entrada || new Date().toISOString()
-    } as Omit<ServiceOrder, 'id' | 'created_at'>;
-
     if (editingOS) {
-      db.updateOrder(editingOS.id, payload);
+      db.updateOrder(editingOS.id, formData);
       showToast("✅ Ordem de Serviço atualizada!", "success");
     } else {
-      db.addOrder(payload);
+      db.addOrder(formData);
       showToast("✅ Ordem de Serviço salva!", "success");
     }
     setOrders(db.getOrders());
@@ -173,7 +173,6 @@ const ServiceOrders: React.FC = () => {
         addButtonLabel="Nova OS"
       />
 
-      {/* Alerta de Confirmação */}
       <AlertDialog 
         isOpen={isAlertOpen}
         onClose={() => setIsAlertOpen(false)}
@@ -229,7 +228,7 @@ const ServiceOrders: React.FC = () => {
                   <input 
                     type="date" required
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
-                    value={formData.data_entrada?.split('T')[0] || ''}
+                    value={formData.data_entrada.split('T')[0]}
                     onChange={e => setFormData({ ...formData, data_entrada: e.target.value })}
                   />
                 </div>
@@ -283,7 +282,7 @@ const ServiceOrders: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
-                            {formData.servicos?.map((item, idx) => (
+                            {formData.servicos.map((item, idx) => (
                                 <tr key={item.id} className="hover:bg-zinc-800/20">
                                     <td className="px-4 py-2 font-medium">{item.nome_servico}</td>
                                     <td className="px-4 py-2">
@@ -294,7 +293,7 @@ const ServiceOrders: React.FC = () => {
                                             value={item.quantidade} 
                                             onChange={(e) => {
                                                 const q = parseInt(e.target.value) || 1;
-                                                const updated = [...(formData.servicos || [])];
+                                                const updated = [...formData.servicos];
                                                 updated[idx] = { ...updated[idx], quantidade: q, subtotal: q * updated[idx].preco_unitario };
                                                 setFormData({ ...formData, servicos: updated, orcamento_total: calculateTotal(updated) });
                                             }}
@@ -308,7 +307,7 @@ const ServiceOrders: React.FC = () => {
                                             value={item.preco_unitario} 
                                             onChange={(e) => {
                                                 const p = parseFloat(e.target.value) || 0;
-                                                const updated = [...(formData.servicos || [])];
+                                                const updated = [...formData.servicos];
                                                 updated[idx] = { ...updated[idx], preco_unitario: p, subtotal: p * updated[idx].quantidade };
                                                 setFormData({ ...formData, servicos: updated, orcamento_total: calculateTotal(updated) });
                                             }}
@@ -322,14 +321,14 @@ const ServiceOrders: React.FC = () => {
                                     </td>
                                 </tr>
                             ))}
-                            {(!formData.servicos || formData.servicos.length === 0) && (
+                            {formData.servicos.length === 0 && (
                                 <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-600 italic">Adicione serviços ao orçamento</td></tr>
                             )}
                         </tbody>
                         <tfoot>
                             <tr className="bg-zinc-900 font-bold border-t border-zinc-800">
                                 <td colSpan={3} className="px-4 py-3 text-right">TOTAL ESTIMADO</td>
-                                <td colSpan={2} className="px-4 py-3 text-emerald-400 text-right font-mono">R$ {formData.orcamento_total?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                                <td colSpan={2} className="px-4 py-3 text-emerald-400 text-right font-mono">R$ {formData.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             </tr>
                         </tfoot>
                     </table>
