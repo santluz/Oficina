@@ -66,7 +66,7 @@ const Services: React.FC = () => {
       header: 'Preço Sugerido', 
       accessor: (s: Service) => (
         <span className="font-medium text-emerald-400">
-          R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
       )
     },
@@ -74,8 +74,8 @@ const Services: React.FC = () => {
       header: 'Ações', 
       accessor: (s: Service) => (
         <div className="flex items-center gap-2">
-          <button onClick={() => handleOpenModal(s)} className="p-2 text-zinc-400 hover:text-cyan-500 hover:bg-zinc-800 rounded-lg"><Edit size={16} /></button>
-          <button onClick={() => handleDelete(s.id)} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-lg"><Trash2 size={16} /></button>
+          <button onClick={() => handleOpenModal(s)} className="p-2 text-zinc-400 hover:text-cyan-500 hover:bg-zinc-800 rounded-lg transition-colors"><Edit size={16} /></button>
+          <button onClick={() => handleDelete(s.id)} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-lg transition-colors"><Trash2 size={16} /></button>
         </div>
       ),
       className: 'text-right'
@@ -93,48 +93,52 @@ const Services: React.FC = () => {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl overflow-hidden relative animate-in">
-            <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl overflow-hidden relative animate-in shadow-2xl my-8">
+            <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between">
               <h3 className="text-xl font-bold">{editingService ? 'Editar Serviço' : 'Novo Serviço'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white"><X size={20} /></button>
+              <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors"><X size={20} /></button>
             </div>
             
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-500 uppercase">Nome do Serviço</label>
+            <form onSubmit={handleSave} className="p-6 space-y-6">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Nome do Serviço</label>
                 <input 
                   type="text" required placeholder="Ex: Troca de Óleo 10w40"
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
                   value={formData.nome}
                   onChange={e => setFormData({ ...formData, nome: e.target.value })}
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-500 uppercase">Preço Base Sugerido (R$)</label>
-                <input 
-                  type="number" step="0.01" required
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500"
-                  value={formData.preco_base}
-                  onChange={e => setFormData({ ...formData, preco_base: parseFloat(e.target.value) })}
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Preço Base Sugerido (R$)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">R$</span>
+                  <input 
+                    type="number" step="0.01" required placeholder="0,00"
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-11 pr-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all font-mono"
+                    value={formData.preco_base || ''}
+                    onChange={e => setFormData({ ...formData, preco_base: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-500 uppercase">Descrição Técnica</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Descrição Técnica</label>
                 <textarea 
                   rows={4}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 resize-none"
+                  placeholder="Detalhes sobre o serviço..."
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 resize-none transition-all"
                   value={formData.descricao}
                   onChange={e => setFormData({ ...formData, descricao: e.target.value })}
                 />
               </div>
               
-              <div className="flex items-center justify-end gap-3 pt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-zinc-400 hover:text-zinc-100">Cancelar</button>
-                <button type="submit" className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition-colors">Cancelar</button>
+                <button type="submit" className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-cyan-900/20 active:scale-95">
                   {editingService ? 'Salvar Serviço' : 'Adicionar ao Catálogo'}
                 </button>
               </div>

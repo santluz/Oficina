@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { DataTable } from '../components/DataTable';
 import { db } from '../services/db';
 import { ServiceOrder, ServiceOrderStatus, Service, ServiceOrderItem } from '../types';
-import { Edit, Trash2, X, Plus } from '../constants';
+import { Edit, Trash2, X, Plus, Search } from '../constants';
 import { getStatusStyles } from './Dashboard';
 import { useToast } from '../components/Toast';
 import { AlertDialog } from '../components/AlertDialog';
@@ -11,6 +11,7 @@ import { AlertDialog } from '../components/AlertDialog';
 const ServiceOrders: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [editingOS, setEditingOS] = useState<ServiceOrder | null>(null);
   const [orders, setOrders] = useState<ServiceOrder[]>(db.getOrders());
@@ -20,7 +21,6 @@ const ServiceOrders: React.FC = () => {
   const allVehicles = db.getVehicles();
   const catalogServices = db.getServices();
 
-  // Inicialização completa para evitar erros de tipagem parcial
   const initialFormData: Omit<ServiceOrder, 'id' | 'created_at'> = {
     user_id: 'u1',
     cliente_id: '',
@@ -77,6 +77,8 @@ const ServiceOrders: React.FC = () => {
       servicos: updatedServices,
       orcamento_total: calculateTotal(updatedServices)
     });
+    setIsServiceDropdownOpen(false); // Fecha o dropdown após adicionar
+    showToast(`Adicionado: ${service.nome}`, "success");
   };
 
   const removeServiceFromOS = (id: string) => {
@@ -147,7 +149,7 @@ const ServiceOrders: React.FC = () => {
       header: 'Total', 
       accessor: (o: ServiceOrder) => (
         <span className="font-bold text-zinc-100">
-          R$ {o.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          R$ {o.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
       )
     },
@@ -185,18 +187,18 @@ const ServiceOrders: React.FC = () => {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-2xl overflow-hidden relative animate-in flex flex-col max-h-[90vh] shadow-2xl">
-            <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between flex-shrink-0">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-3xl rounded-2xl overflow-hidden relative animate-in flex flex-col max-h-[95vh] shadow-2xl my-4">
+            <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between flex-shrink-0">
               <h3 className="text-xl font-bold">{editingOS ? `Editar OS #${editingOS.id}` : 'Nova Ordem de Serviço'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors"><X size={20} /></button>
             </div>
             
-            <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase">Cliente</label>
+            <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Cliente</label>
                   <select 
                     required
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
@@ -207,8 +209,8 @@ const ServiceOrders: React.FC = () => {
                     {clients.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase">Veículo</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Veículo</label>
                   <select 
                     required
                     disabled={!formData.cliente_id}
@@ -222,9 +224,9 @@ const ServiceOrders: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase">Data Entrada</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Data Entrada</label>
                   <input 
                     type="date" required
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
@@ -232,8 +234,8 @@ const ServiceOrders: React.FC = () => {
                     onChange={e => setFormData({ ...formData, data_entrada: e.target.value })}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-500 uppercase">Status</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Status</label>
                   <select 
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
                     value={formData.status}
@@ -246,50 +248,64 @@ const ServiceOrders: React.FC = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-zinc-500 uppercase">Serviços / Peças</label>
-                    <div className="relative group">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Itens do Orçamento</label>
+                    <div className="relative">
                         <button 
                             type="button" 
-                            className="text-xs font-bold text-cyan-500 flex items-center gap-1 hover:text-cyan-400 transition-colors"
+                            onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${isServiceDropdownOpen ? 'bg-cyan-600 text-white' : 'bg-zinc-800 text-cyan-500 hover:bg-zinc-700'}`}
                         >
-                            <Plus size={14} /> Adicionar Serviço
+                            <Plus size={14} /> Adicionar Serviço/Peça
                         </button>
-                        <div className="absolute right-0 mt-2 w-64 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl invisible group-hover:visible z-50 p-2 max-h-48 overflow-y-auto">
-                            {catalogServices.map(s => (
-                                <button 
-                                    key={s.id} 
-                                    type="button"
-                                    onClick={() => addServiceToOS(s)}
-                                    className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-zinc-700 transition-colors"
-                                >
-                                    {s.nome} (R$ {s.preco_base})
-                                </button>
-                            ))}
-                            {catalogServices.length === 0 && <p className="text-xs text-zinc-500 p-2">Nenhum serviço no catálogo.</p>}
-                        </div>
+                        
+                        {isServiceDropdownOpen && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setIsServiceDropdownOpen(false)} />
+                            <div className="absolute right-0 mt-2 w-72 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 p-2 overflow-hidden animate-in zoom-in-95 duration-200">
+                                <div className="p-2 border-b border-zinc-800 mb-1">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Catálogo de Serviços</p>
+                                </div>
+                                <div className="max-h-60 overflow-y-auto">
+                                    {catalogServices.length > 0 ? catalogServices.map(s => (
+                                        <button 
+                                            key={s.id} 
+                                            type="button"
+                                            onClick={() => addServiceToOS(s)}
+                                            className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-zinc-800 transition-colors flex justify-between items-center group"
+                                        >
+                                            <span className="font-medium group-hover:text-cyan-400 transition-colors">{s.nome}</span>
+                                            <span className="text-xs text-emerald-500 font-mono">R${s.preco_base?.toFixed(2)}</span>
+                                        </button>
+                                    )) : (
+                                        <p className="text-xs text-zinc-500 p-4 text-center italic">Nenhum serviço cadastrado.</p>
+                                    )}
+                                </div>
+                            </div>
+                          </>
+                        )}
                     </div>
                 </div>
 
-                <div className="bg-zinc-950/50 border border-zinc-800 rounded-xl overflow-hidden">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-zinc-900 border-b border-zinc-800 text-zinc-500">
+                <div className="bg-zinc-950/50 border border-zinc-800 rounded-xl overflow-hidden shadow-inner">
+                    <table className="w-full text-left text-sm border-collapse">
+                        <thead className="bg-zinc-900 border-b border-zinc-800 text-zinc-500 font-bold uppercase text-[10px] tracking-widest">
                             <tr>
-                                <th className="px-4 py-2">Item</th>
-                                <th className="px-4 py-2 w-20">Qtd</th>
-                                <th className="px-4 py-2 w-32">Preço</th>
-                                <th className="px-4 py-2 w-32 text-right">Subtotal</th>
-                                <th className="px-4 py-2 w-10"></th>
+                                <th className="px-4 py-3">Item</th>
+                                <th className="px-4 py-3 w-20 text-center">Qtd</th>
+                                <th className="px-4 py-3 w-36 text-center">Preço Unit.</th>
+                                <th className="px-4 py-3 w-36 text-right">Subtotal</th>
+                                <th className="px-4 py-3 w-12"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
                             {formData.servicos.map((item, idx) => (
-                                <tr key={item.id} className="hover:bg-zinc-800/20">
-                                    <td className="px-4 py-2 font-medium">{item.nome_servico}</td>
-                                    <td className="px-4 py-2">
+                                <tr key={item.id} className="hover:bg-zinc-800/20 group">
+                                    <td className="px-4 py-3 font-medium text-zinc-200">{item.nome_servico}</td>
+                                    <td className="px-4 py-3">
                                         <input 
                                             type="number" 
                                             min="1" 
-                                            className="w-full bg-zinc-800 px-2 py-1 rounded border border-zinc-700 focus:border-cyan-500 outline-none" 
+                                            className="w-full bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-700 focus:border-cyan-500 outline-none text-center transition-all" 
                                             value={item.quantidade} 
                                             onChange={(e) => {
                                                 const q = parseInt(e.target.value) || 1;
@@ -299,56 +315,64 @@ const ServiceOrders: React.FC = () => {
                                             }}
                                         />
                                     </td>
-                                    <td className="px-4 py-2">
-                                        <input 
-                                            type="number" 
-                                            step="0.01"
-                                            className="w-full bg-zinc-800 px-2 py-1 rounded border border-zinc-700 focus:border-cyan-500 outline-none" 
-                                            value={item.preco_unitario} 
-                                            onChange={(e) => {
-                                                const p = parseFloat(e.target.value) || 0;
-                                                const updated = [...formData.servicos];
-                                                updated[idx] = { ...updated[idx], preco_unitario: p, subtotal: p * updated[idx].quantidade };
-                                                setFormData({ ...formData, servicos: updated, orcamento_total: calculateTotal(updated) });
-                                            }}
-                                        />
+                                    <td className="px-4 py-3">
+                                        <div className="relative">
+                                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">R$</span>
+                                          <input 
+                                              type="number" 
+                                              step="0.01"
+                                              className="w-full bg-zinc-800 pl-7 pr-2 py-1.5 rounded-lg border border-zinc-700 focus:border-cyan-500 outline-none font-mono text-center transition-all" 
+                                              value={item.preco_unitario} 
+                                              onChange={(e) => {
+                                                  const p = parseFloat(e.target.value) || 0;
+                                                  const updated = [...formData.servicos];
+                                                  updated[idx] = { ...updated[idx], preco_unitario: p, subtotal: p * updated[idx].quantidade };
+                                                  setFormData({ ...formData, servicos: updated, orcamento_total: calculateTotal(updated) });
+                                              }}
+                                          />
+                                        </div>
                                     </td>
-                                    <td className="px-4 py-2 text-zinc-400 text-right font-mono">R$ {item.subtotal.toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-right">
-                                        <button type="button" onClick={() => removeServiceFromOS(item.id)} className="text-red-500 hover:text-red-400 transition-colors">
-                                            <Trash2 size={14} />
+                                    <td className="px-4 py-3 text-zinc-100 text-right font-mono font-bold">R$ {item.subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                                    <td className="px-4 py-3 text-right">
+                                        <button 
+                                          type="button" 
+                                          onClick={() => removeServiceFromOS(item.id)} 
+                                          className="text-zinc-600 hover:text-red-500 transition-colors p-1"
+                                        >
+                                            <Trash2 size={16} />
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                             {formData.servicos.length === 0 && (
-                                <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-600 italic">Adicione serviços ao orçamento</td></tr>
+                                <tr><td colSpan={5} className="px-4 py-12 text-center text-zinc-600 italic">O orçamento está vazio. Adicione serviços ou peças.</td></tr>
                             )}
                         </tbody>
                         <tfoot>
-                            <tr className="bg-zinc-900 font-bold border-t border-zinc-800">
-                                <td colSpan={3} className="px-4 py-3 text-right">TOTAL ESTIMADO</td>
-                                <td colSpan={2} className="px-4 py-3 text-emerald-400 text-right font-mono">R$ {formData.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                            <tr className="bg-zinc-900 border-t border-zinc-800">
+                                <td colSpan={3} className="px-6 py-4 text-right text-xs font-bold text-zinc-500 uppercase tracking-widest">Valor Total da OS</td>
+                                <td colSpan={2} className="px-6 py-4 text-emerald-400 text-right font-mono text-xl font-black">R$ {formData.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-500 uppercase">Observações Internas</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Observações Internas / Diagnóstico</label>
                 <textarea 
                   rows={3}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 resize-none transition-all"
+                  placeholder="Descreva o problema relatado pelo cliente ou detalhes técnicos..."
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 resize-none transition-all placeholder:text-zinc-600"
                   value={formData.observacoes}
                   onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
                 />
               </div>
               
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800 flex-shrink-0">
+              <div className="flex items-center justify-end gap-3 pt-6 border-t border-zinc-800 flex-shrink-0">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition-colors">Cancelar</button>
-                <button type="submit" className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-cyan-500/20 active:scale-95">
-                  {editingOS ? 'Salvar OS' : 'Gerar Ordem de Serviço'}
+                <button type="submit" className="px-8 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-cyan-900/20 active:scale-95">
+                  {editingOS ? 'Salvar Alterações' : 'Finalizar e Gerar OS'}
                 </button>
               </div>
             </form>
