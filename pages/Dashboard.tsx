@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { 
   Users, 
   Car, 
@@ -7,45 +7,66 @@ import {
   CheckCircle2, 
   Clock, 
   BarChart3,
-  AlertCircle
+  AlertCircle,
+  Zap
 } from '../constants';
 import { db } from '../services/db';
-import { ServiceOrderStatus } from '../types';
+import { ServiceOrder, ServiceOrderStatus } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
-  const clients = db.getClients();
-  const vehicles = db.getVehicles();
-  const orders = db.getOrders();
+  const [data, setData] = useState({
+    clients: [],
+    vehicles: [],
+    orders: [] as ServiceOrder[]
+  });
+
+  // Carrega dados do banco sempre que o dashboard for exibido
+  useEffect(() => {
+    setData({
+      clients: db.getClients(),
+      vehicles: db.getVehicles(),
+      orders: db.getOrders()
+    });
+  }, []);
 
   const stats = useMemo(() => {
-    const openOrdersList = orders.filter(o => o.status !== ServiceOrderStatus.COMPLETED && o.status !== ServiceOrderStatus.CANCELLED);
-    const openOrders = openOrdersList.length;
+    const { orders, clients, vehicles } = data;
     
+    const openOrdersList = orders.filter(o => o.status !== ServiceOrderStatus.COMPLETED && o.status !== ServiceOrderStatus.CANCELLED);
+    
+    // Faturamento REALIZADO (Apenas Concluídas)
+    const realizedRevenue = orders
+      .filter(o => o.status === ServiceOrderStatus.COMPLETED)
+      .reduce((sum, o) => sum + (o.orcamento_total || 0), 0);
+    
+    // Previsão de Receita (Pendente + Em Andamento)
+    const pendingRevenue = orders
+      .filter(o => o.status === ServiceOrderStatus.PENDING || o.status === ServiceOrderStatus.IN_PROGRESS)
+      .reduce((sum, o) => sum + (o.orcamento_total || 0), 0);
+
     const completedMonth = orders.filter(o => {
       const date = new Date(o.created_at);
       const now = new Date();
       return o.status === ServiceOrderStatus.COMPLETED && date.getMonth() === now.getMonth();
     }).length;
-    
-    const estimatedRevenue = orders
-      .filter(o => o.status === ServiceOrderStatus.COMPLETED)
-      .reduce((sum, o) => sum + (o.orcamento_total || 0), 0);
 
     return {
       totalClients: clients.length,
       totalVehicles: vehicles.length,
-      openOrders,
+      openOrders: openOrdersList.length,
       completedMonth,
-      estimatedRevenue,
+      realizedRevenue,
+      pendingRevenue,
+      totalPotential: realizedRevenue + pendingRevenue,
       openOrdersList
     };
-  }, [clients, vehicles, orders]);
+  }, [data]);
 
   const chartData = useMemo(() => {
     const counts: Record<string, number> = {};
-    orders.forEach(o => {
+    data.orders.forEach(o => {
       o.servicos.forEach(s => {
         counts[s.nome_servico] = (counts[s.nome_servico] || 0) + s.quantidade;
       });
@@ -55,14 +76,14 @@ const Dashboard: React.FC = () => {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-  }, [orders]);
+  }, [data.orders]);
 
   return (
     <div className="space-y-8 pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="animate-in">
           <h2 className="text-3xl font-extrabold text-zinc-100 tracking-tight">Visão Geral</h2>
-          <p className="text-zinc-500">Acompanhe o desempenho da sua oficina em tempo real.</p>
+          <p className="text-zinc-500">Acompanhe os números da sua oficina.</p>
         </div>
         <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl shadow-sm">
           <Clock size={18} className="text-cyan-500" />
@@ -70,17 +91,43 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid Principal */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={<Users size={20} />} label="Total de Clientes" value={stats.totalClients} color="cyan" />
-        <StatCard icon={<Car size={20} />} label="Frota Cadastrada" value={stats.totalVehicles} color="emerald" />
+        <StatCard icon={<Users size={20} />} label="Clientes" value={stats.totalClients} color="cyan" />
         <StatCard icon={<ClipboardList size={20} />} label="OS em Aberto" value={stats.openOrders} color="amber" />
-        <StatCard icon={<CheckCircle2 size={20} />} label="Concluídas no Mês" value={stats.completedMonth} color="indigo" />
+        <StatCard icon={<CheckCircle2 size={20} />} label="Mês (Concluídas)" value={stats.completedMonth} color="indigo" />
+        <StatCard icon={<Zap size={20} />} label="Previsão Total" value={`R$ ${stats.totalPotential.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} color="emerald" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity Column */}
+        {/* Coluna de Atividades e Faturamento */}
         <div className="lg:col-span-2 space-y-8">
+          
+          {/* Cards de Faturamento Detalhado */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
+              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Faturamento Realizado</h4>
+              <p className="text-3xl font-black text-emerald-400 mb-4">
+                R$ {stats.realizedRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <div className="flex items-center gap-2 text-[10px] font-bold px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full w-fit uppercase">
+                <CheckCircle2 size={12} /> OS Concluídas
+              </div>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all" />
+              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Previsão em Aberto</h4>
+              <p className="text-3xl font-black text-cyan-500 mb-4">
+                R$ {stats.pendingRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <div className="flex items-center gap-2 text-[10px] font-bold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full w-fit uppercase">
+                <Clock size={12} /> OS Pendentes / Em andamento
+              </div>
+            </div>
+          </div>
+
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col shadow-xl">
             <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
               <h3 className="text-lg font-bold flex items-center gap-2">
@@ -100,8 +147,8 @@ const Dashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {orders.slice(0, 6).map((order) => {
-                    const vehicle = vehicles.find(v => v.id === order.veiculo_id);
+                  {data.orders.slice(0, 6).map((order) => {
+                    const vehicle = data.vehicles.find(v => v.id === order.veiculo_id);
                     return (
                       <tr key={order.id} className="hover:bg-zinc-800/30 transition-all group">
                         <td className="px-6 py-4 font-mono text-cyan-500 font-bold">#{order.id}</td>
@@ -120,7 +167,7 @@ const Dashboard: React.FC = () => {
                       </tr>
                     );
                   })}
-                  {orders.length === 0 && (
+                  {data.orders.length === 0 && (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center text-zinc-600 italic">
                         Nenhuma ordem de serviço registrada.
@@ -131,71 +178,21 @@ const Dashboard: React.FC = () => {
               </table>
             </div>
           </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-                <BarChart3 size={20} />
-              </div>
-              <h3 className="text-lg font-bold">Distribuição de Serviços</h3>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
-                  <XAxis type="number" hide />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    stroke="#a1a1aa" 
-                    fontSize={12} 
-                    width={100}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip 
-                    cursor={{ fill: '#27272a' }}
-                    contentStyle={{ backgroundColor: '#09090b', border: '1px solid #27272a', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                    itemStyle={{ color: '#06b6d4', fontWeight: 'bold' }}
-                  />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={20}>
-                    {chartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? '#0891b2' : '#27272a'} className="transition-all hover:opacity-80" />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
         </div>
 
-        {/* Stats Column */}
+        {/* Coluna Lateral de Pendências */}
         <div className="space-y-6">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
-            <h4 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-2">Faturamento Total</h4>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-4xl font-black text-zinc-100">
-                R$ {stats.estimatedRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-bold px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full w-fit">
-              <CheckCircle2 size={12} />
-              Valor de OS Concluídas
-            </div>
-          </div>
-
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl">
-            <h4 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Alertas e Pendências</h4>
+            <h4 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aguardando Execução</h4>
             <div className="space-y-4">
               {stats.openOrdersList.length > 0 ? (
-                stats.openOrdersList.slice(0, 3).map(os => (
+                stats.openOrdersList.slice(0, 5).map(os => (
                   <div key={os.id} className="flex gap-4 p-3 rounded-xl bg-zinc-950/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 flex-shrink-0">
                       <AlertCircle size={16} />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-zinc-200">OS #{os.id} pendente</p>
+                      <p className="text-xs font-bold text-zinc-200">OS #{os.id} - R$ {os.orcamento_total.toFixed(2)}</p>
                       <p className="text-[10px] text-zinc-500 uppercase font-mono">Entrada: {new Date(os.data_entrada).toLocaleDateString()}</p>
                     </div>
                   </div>
@@ -203,22 +200,47 @@ const Dashboard: React.FC = () => {
               ) : (
                 <div className="text-center py-6">
                   <CheckCircle2 size={32} className="text-zinc-800 mx-auto mb-2" />
-                  <p className="text-xs text-zinc-600 font-medium">Tudo em dia!</p>
+                  <p className="text-xs text-zinc-600 font-medium">Nenhuma OS pendente!</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="p-8 rounded-3xl bg-gradient-to-br from-cyan-600 to-cyan-800 text-white shadow-lg shadow-cyan-900/20 relative overflow-hidden group">
-            <div className="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform">
-              <Wrench size={120} />
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-500">
+                <BarChart3 size={16} />
+              </div>
+              <h3 className="text-sm font-bold uppercase tracking-widest">Serviços Mais Realizados</h3>
             </div>
-            <h4 className="text-lg font-bold mb-2">Gestão Inteligente</h4>
-            <p className="text-sm text-cyan-100 opacity-80 leading-relaxed mb-6">
-              Mantenha o catálogo de serviços atualizado para agilizar seus orçamentos diários.
-            </p>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical">
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    type="category" 
+                    dataKey="name" 
+                    stroke="#a1a1aa" 
+                    fontSize={10} 
+                    width={80}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
+                    {chartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={index === 0 ? '#0891b2' : '#27272a'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-cyan-600 to-cyan-800 text-white shadow-lg shadow-cyan-900/20 relative overflow-hidden group">
+            <h4 className="text-lg font-bold mb-2">Novo Cadastro</h4>
+            <p className="text-xs text-cyan-100 opacity-80 mb-6">Cadastre novos serviços para agilizar seus próximos orçamentos.</p>
             <Link to="/servicos" className="inline-flex items-center gap-2 text-xs font-black bg-white text-cyan-700 px-4 py-2 rounded-xl hover:bg-cyan-50 transition-colors shadow-sm">
-              Atualizar Catálogo
+              ACESSAR CATÁLOGO
             </Link>
           </div>
         </div>
@@ -236,21 +258,15 @@ const StatCard: React.FC<{ icon: React.ReactNode, label: string, value: string |
   };
 
   return (
-    <div className={`p-6 rounded-3xl bg-zinc-900 border border-zinc-800 transition-all hover:border-zinc-700 hover:scale-[1.02] shadow-xl group`}>
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 border transition-transform group-hover:scale-110 ${colors[color] || colors.cyan}`}>
+    <div className={`p-6 rounded-3xl bg-zinc-900 border border-zinc-800 transition-all hover:border-zinc-700 shadow-xl group`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 border transition-transform group-hover:scale-110 ${colors[color] || colors.cyan}`}>
         {icon}
       </div>
-      <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-3xl font-black text-zinc-100">{value}</p>
+      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">{label}</p>
+      <p className="text-2xl font-black text-zinc-100">{value}</p>
     </div>
   );
 };
-
-const Wrench = ({ size, className }: { size?: number, className?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-  </svg>
-);
 
 export const getStatusStyles = (status: ServiceOrderStatus) => {
   switch (status) {

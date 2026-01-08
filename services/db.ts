@@ -100,7 +100,13 @@ export const db = {
   getOrders: (): ServiceOrder[] => getFromStorage(STORAGE_KEYS.ORDERS),
   addOrder: (order: Omit<ServiceOrder, 'id' | 'created_at'>) => {
     const orders = db.getOrders();
-    const newOrder = { ...order, id: (orders.length + 1).toString().padStart(4, '0'), created_at: new Date().toISOString() };
+    const nextId = (orders.reduce((max, o) => Math.max(max, parseInt(o.id)), 0) + 1).toString().padStart(4, '0');
+    const newOrder = { 
+      ...order, 
+      id: nextId, 
+      created_at: new Date().toISOString() 
+    };
+    // Adiciona ao início da lista para que apareça como "recente"
     saveToStorage(STORAGE_KEYS.ORDERS, [newOrder, ...orders]);
     return newOrder;
   },

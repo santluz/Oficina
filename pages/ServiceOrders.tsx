@@ -3,7 +3,6 @@ import React, { useState, useMemo } from 'react';
 import { DataTable } from '../components/DataTable';
 import { db } from '../services/db';
 import { ServiceOrder, ServiceOrderStatus, Service, ServiceOrderItem } from '../types';
-// Fix: Added ClipboardList and Wrench to the import list from constants
 import { Edit, Trash2, X, Plus, Search, ShoppingCart, CheckCircle2, ClipboardList, Wrench } from '../constants';
 import { getStatusStyles } from './Dashboard';
 import { useToast } from '../components/Toast';
@@ -112,11 +111,17 @@ const ServiceOrders: React.FC = () => {
         return;
     }
 
+    // Garante que o total está atualizado antes de salvar
+    const finalData = {
+      ...formData,
+      orcamento_total: calculateTotal(formData.servicos)
+    };
+
     if (editingOS) {
-      db.updateOrder(editingOS.id, formData);
+      db.updateOrder(editingOS.id, finalData);
       showToast("✅ Ordem de Serviço atualizada!", "success");
     } else {
-      db.addOrder(formData);
+      db.addOrder(finalData);
       showToast("✅ Ordem de Serviço salva!", "success");
     }
     setOrders(db.getOrders());
@@ -279,7 +284,7 @@ const ServiceOrders: React.FC = () => {
                       <button 
                           type="button" 
                           onClick={() => setIsServicePickerOpen(true)}
-                          className="px-4 py-2 bg-zinc-800 hover:bg-cyan-600 text-cyan-500 hover:text-white rounded-lg text-xs font-black flex items-center gap-2 transition-all border border-zinc-700"
+                          className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-cyan-900/20"
                       >
                           <Plus size={14} /> BUSCAR NO CATÁLOGO
                       </button>
@@ -420,7 +425,6 @@ const ServiceOrders: React.FC = () => {
                   key={s.id}
                   onClick={() => {
                     addServiceToOS(s);
-                    // Opcional: não fechar para permitir adicionar múltiplos
                   }}
                   className="w-full text-left p-4 rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-between group border border-transparent hover:border-zinc-700"
                 >
