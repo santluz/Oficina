@@ -233,175 +233,192 @@ const ServiceOrders: React.FC = () => {
         variant="danger"
       />
 
-      {/* MODAL DE OS - TELA CHEIA PROFISSIONAL */}
+      {/* MODAL DE OS - TELA CHEIA IMERSIVA */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col animate-in fade-in duration-200">
           
-          {/* Header Compacto e Fixo */}
-          <div className="px-6 sm:px-10 py-5 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-cyan-600/10 flex items-center justify-center text-cyan-500 border border-cyan-500/20 rounded-xl">
-                <ClipboardList size={20} />
+          {/* Header Workspace - Ocupa a largura total */}
+          <div className="px-8 py-6 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-5">
+              <div className="w-12 h-12 bg-cyan-600/10 flex items-center justify-center text-cyan-500 border border-cyan-500/20 rounded-xl shadow-lg">
+                <ClipboardList size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-zinc-100">
-                  {editingOS ? `ORDEM DE SERVIÇO #${editingOS.id}` : 'ABERTURA DE NOVA OS'}
+                <h3 className="text-2xl font-black text-zinc-100 uppercase tracking-tight">
+                  {editingOS ? `ORDEM DE SERVIÇO #${editingOS.id}` : 'ABERTURA DE NOVA ORDEM DE SERVIÇO'}
                 </h3>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Sistema de Gestão Automotiva • JV 2026</p>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-black">JV AUTOMÓVEIS</span>
+                  <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                  <span className="text-[10px] text-cyan-500/70 uppercase tracking-[0.3em] font-black">GESTÃO ESTRATÉGICA 2026</span>
+                </div>
               </div>
             </div>
             <button 
               onClick={() => setIsModalOpen(false)} 
-              className="p-2 text-zinc-400 hover:text-white bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-all border border-zinc-700"
+              className="p-3 text-zinc-400 hover:text-white bg-zinc-800 rounded-xl hover:bg-zinc-700 transition-all border border-zinc-700 shadow-xl"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
           </div>
 
-          {/* Área de Conteúdo Scrollable com Densidade Equilibrada */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950/20 p-6 sm:p-10">
-            <form id="os-form" onSubmit={handleSave} className="max-w-6xl mx-auto space-y-8">
+          {/* Área Principal - Workspace Amplo */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950 p-10">
+            <form id="os-form" onSubmit={handleSave} className="max-w-[1400px] mx-auto space-y-10">
               
-              {/* Seção 1: Dados do Cliente/Veículo */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800/50 shadow-sm">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Cliente</label>
-                  <select 
-                    required
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 font-semibold text-sm"
-                    value={formData.cliente_id}
-                    onChange={e => setFormData(p => ({ ...p, cliente_id: e.target.value, veiculo_id: '' }))}
-                  >
-                    <option value="">Selecionar Cliente...</option>
-                    {clients.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-                  </select>
+              {/* Seção: Identificação do Chamado */}
+              <section className="bg-zinc-900/40 p-8 rounded-3xl border border-zinc-800/50 shadow-2xl">
+                <div className="flex items-center gap-3 mb-8">
+                  <Users size={18} className="text-zinc-500" />
+                  <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.4em]">Triagem Inicial</h4>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Veículo</label>
-                  <select 
-                    required
-                    disabled={!formData.cliente_id}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-20 font-semibold text-sm"
-                    value={formData.veiculo_id}
-                    onChange={e => setFormData(p => ({ ...p, veiculo_id: e.target.value }))}
-                  >
-                    <option value="">Selecionar Veículo...</option>
-                    {filteredVehicles.map(v => <option key={v.id} value={v.id}>{v.marca} {v.modelo} • {v.placa}</option>)}
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Proprietário (Cliente)</label>
+                    <select 
+                      required
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-base transition-all shadow-inner"
+                      value={formData.cliente_id}
+                      onChange={e => setFormData(p => ({ ...p, cliente_id: e.target.value, veiculo_id: '' }))}
+                    >
+                      <option value="">Selecionar Cliente...</option>
+                      {clients.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Veículo Relacionado</label>
+                    <select 
+                      required
+                      disabled={!formData.cliente_id}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-20 font-bold text-base transition-all shadow-inner"
+                      value={formData.veiculo_id}
+                      onChange={e => setFormData(p => ({ ...p, veiculo_id: e.target.value }))}
+                    >
+                      <option value="">Selecionar Veículo...</option>
+                      {filteredVehicles.map(v => <option key={v.id} value={v.id}>{v.marca} {v.modelo} • {v.placa}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Data de Abertura</label>
+                    <div className="relative">
+                      <Clock size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600" />
+                      <input 
+                        type="date" required
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-14 pr-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-base transition-all shadow-inner"
+                        value={formData.data_entrada.split('T')[0]}
+                        onChange={e => setFormData(p => ({ ...p, data_entrada: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Status da Operação</label>
+                    <select 
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-black uppercase text-xs tracking-widest transition-all shadow-inner"
+                      value={formData.status}
+                      onChange={e => setFormData(p => ({ ...p, status: e.target.value as ServiceOrderStatus }))}
+                    >
+                      {Object.values(ServiceOrderStatus).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Data Entrada</label>
-                  <input 
-                    type="date" required
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 font-semibold text-sm"
-                    value={formData.data_entrada.split('T')[0]}
-                    onChange={e => setFormData(p => ({ ...p, data_entrada: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Situação</label>
-                  <select 
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 font-bold uppercase text-[10px]"
-                    value={formData.status}
-                    onChange={e => setFormData(p => ({ ...p, status: e.target.value as ServiceOrderStatus }))}
-                  >
-                    {Object.values(ServiceOrderStatus).map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-              </div>
+              </section>
 
-              {/* Seção 2: Tabela de Itens com BOTÕES DE INCLUSÃO */}
-              <div className="space-y-4">
+              {/* Seção: Orçamento e Itens */}
+              <section className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                    <ShoppingCart size={14} className="text-cyan-500" /> Detalhamento do Orçamento
-                  </h4>
                   <div className="flex items-center gap-3">
+                    <ShoppingCart size={18} className="text-cyan-500" />
+                    <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.4em]">Detalhamento de Peças e Serviços</h4>
+                  </div>
+                  <div className="flex items-center gap-4">
                     <button 
                         type="button" 
                         onClick={addManualItem}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest border border-zinc-700"
+                        className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest border border-zinc-700 shadow-lg"
                     >
-                        <Plus size={14} /> Item Avulso
+                        <Plus size={16} /> Adicionar Item Avulso
                     </button>
                     <button 
                         type="button" 
                         onClick={() => setIsServicePickerOpen(true)}
-                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg"
+                        className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest shadow-xl shadow-cyan-900/20"
                     >
-                        <Search size={14} /> Buscar no Catálogo
+                        <Search size={16} /> Buscar no Catálogo
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                <div className="bg-zinc-900/40 border border-zinc-800 rounded-[2rem] overflow-hidden shadow-2xl">
                   <table className="w-full text-left">
-                      <thead className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-500 font-black uppercase text-[9px] tracking-widest">
+                      <thead className="bg-zinc-950/60 border-b border-zinc-800 text-zinc-500 font-black uppercase text-[10px] tracking-widest">
                           <tr>
-                              <th className="px-6 py-4">Descrição do Serviço / Peça</th>
-                              <th className="px-6 py-4 w-24 text-center">Qtd</th>
-                              <th className="px-6 py-4 w-40 text-center">Valor Unitário</th>
-                              <th className="px-6 py-4 w-40 text-right">Subtotal</th>
-                              <th className="px-6 py-4 w-16"></th>
+                              <th className="px-8 py-5">Discriminação do Item</th>
+                              <th className="px-8 py-5 w-32 text-center">Quantidade</th>
+                              <th className="px-8 py-5 w-48 text-center">Preço Unitário</th>
+                              <th className="px-8 py-5 w-48 text-right">Subtotal</th>
+                              <th className="px-8 py-5 w-20"></th>
                           </tr>
                       </thead>
-                      <tbody className="divide-y divide-zinc-800/40">
+                      <tbody className="divide-y divide-zinc-800/50">
                           {formData.servicos.map((item, idx) => (
-                              <tr key={item.id} className="hover:bg-zinc-800/30 transition-all">
-                                  <td className="px-6 py-4">
+                              <tr key={item.id} className="hover:bg-zinc-800/20 transition-all">
+                                  <td className="px-8 py-5">
                                       {item.servico_id === 'manual' ? (
                                         <input 
                                           autoFocus
                                           type="text"
-                                          placeholder="Digite a descrição..."
-                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500"
+                                          placeholder="Ex: Correia Dentada Master..."
+                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 font-bold text-base outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner"
                                           value={item.nome_servico}
                                           onChange={(e) => updateItem(idx, { nome_servico: e.target.value })}
                                         />
                                       ) : (
-                                        <span className="font-bold text-zinc-100 text-sm">{item.nome_servico}</span>
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                                          <span className="font-bold text-zinc-100 text-lg">{item.nome_servico}</span>
+                                        </div>
                                       )}
                                   </td>
-                                  <td className="px-6 py-4">
+                                  <td className="px-8 py-5">
                                       <input 
                                           type="number" min="1" 
-                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500" 
+                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-center font-bold text-lg outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner" 
                                           value={item.quantidade} 
                                           onChange={(e) => updateItem(idx, { quantidade: parseInt(e.target.value) || 1 })}
                                       />
                                   </td>
-                                  <td className="px-6 py-4 text-center">
+                                  <td className="px-8 py-5 text-center">
                                       <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[10px] font-bold">R$</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 text-xs font-bold">R$</span>
                                         <input 
                                             type="number" step="0.01"
-                                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-3 py-2 font-mono text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500" 
+                                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 font-mono text-center font-bold text-lg outline-none focus:ring-2 focus:ring-cyan-500 shadow-inner" 
                                             value={item.preco_unitario} 
                                             onChange={(e) => updateItem(idx, { preco_unitario: parseFloat(e.target.value) || 0 })}
                                         />
                                       </div>
                                   </td>
-                                  <td className="px-6 py-4 text-zinc-100 text-right font-mono font-bold text-sm">
-                                    R$ {(Number(item.subtotal) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  <td className="px-8 py-5 text-zinc-100 text-right font-mono font-black text-xl tracking-tight">
+                                    <span className="text-xs text-zinc-600 mr-2 font-sans font-normal">R$</span>
+                                    {(Number(item.subtotal) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                   </td>
-                                  <td className="px-6 py-4 text-right">
+                                  <td className="px-8 py-5 text-right">
                                       <button 
                                         type="button" 
-                                        /* Corrected: Use item.id instead of id */
                                         onClick={() => removeServiceFromOS(item.id)} 
-                                        className="text-zinc-600 hover:text-red-500 transition-all p-2 rounded-lg hover:bg-red-500/10"
+                                        className="text-zinc-600 hover:text-red-500 transition-all p-3 rounded-xl hover:bg-red-500/10"
                                       >
-                                          <Trash2 size={16} />
+                                          <Trash2 size={20} />
                                       </button>
                                   </td>
                               </tr>
                           ))}
                           {formData.servicos.length === 0 && (
                               <tr>
-                                <td colSpan={5} className="px-6 py-20 text-center bg-zinc-950/10">
-                                  <div className="flex flex-col items-center gap-3 opacity-20">
-                                    <ShoppingCart size={32} className="text-zinc-500" />
-                                    <p className="font-black text-zinc-500 uppercase tracking-widest text-[9px]">Aguardando inclusão de itens</p>
+                                <td colSpan={5} className="px-8 py-32 text-center bg-zinc-950/20">
+                                  <div className="flex flex-col items-center gap-4 opacity-10">
+                                    <ShoppingCart size={64} className="text-zinc-500" />
+                                    <p className="font-black text-zinc-500 uppercase tracking-[0.5em] text-sm">O orçamento está vazio</p>
                                   </div>
                                 </td>
                               </tr>
@@ -409,106 +426,124 @@ const ServiceOrders: React.FC = () => {
                       </tbody>
                   </table>
                 </div>
-              </div>
+              </section>
 
-              {/* Seção 3: Diagnóstico e Notas */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Edit size={12} className="text-zinc-500" /> Notas Técnicas e Diagnóstico
-                </label>
+              {/* Seção: Observações Técnicas */}
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 px-2">
+                  <Edit size={18} className="text-zinc-500" />
+                  <h4 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.4em]">Diagnóstico e Observações do Técnico</h4>
+                </div>
                 <textarea 
-                  rows={3}
-                  placeholder="Descreva observações sobre o veículo, peças pendentes ou detalhes da execução..."
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-4 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm placeholder:text-zinc-800"
+                  rows={4}
+                  placeholder="Relate aqui problemas encontrados, peças sugeridas para troca futura ou detalhes da garantia..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-[2rem] px-8 py-6 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all text-lg leading-relaxed placeholder:text-zinc-800 shadow-2xl"
                   value={formData.observacoes}
                   onChange={e => setFormData(p => ({ ...p, observacoes: e.target.value }))}
                 />
-              </div>
+              </section>
             </form>
           </div>
 
-          {/* Rodapé Fixo (Sticky Footer) - Visibilidade Total das Ações */}
-          <div className="px-8 sm:px-12 py-5 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-             <div className="flex items-center gap-8">
-                <div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total do Orçamento</p>
-                  <h5 className="text-3xl font-black text-emerald-400 font-mono tracking-tighter flex items-center gap-2">
-                    <span className="text-xs opacity-30 font-sans tracking-normal">R$</span>
-                    {(Number(formData.orcamento_total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </h5>
+          {/* Sticky Action Footer - Barra de Controle Flutuante no final */}
+          <div className="px-10 py-6 bg-zinc-900/80 backdrop-blur-xl border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-50 shadow-[0_-20px_60px_rgba(0,0,0,0.6)]">
+             <div className="flex items-center gap-12">
+                <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-1">Total do Orçamento</p>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-lg text-zinc-600 font-bold">R$</span>
+                    <h5 className="text-5xl font-black text-emerald-400 font-mono tracking-tighter leading-none tabular-nums">
+                      {(Number(formData.orcamento_total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h5>
+                  </div>
                 </div>
-                <div className="hidden lg:flex flex-col gap-0.5 border-l border-zinc-800 pl-8 ml-4">
-                  <span className="flex items-center gap-2 text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
-                    <Zap size={10} className="text-cyan-500" /> Cálculo em Tempo Real
+                <div className="hidden xl:flex flex-col gap-1 border-l border-zinc-800 pl-10">
+                  <span className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                    <Zap size={14} className="text-cyan-500" /> Processamento em Tempo Real
                   </span>
-                  <span className="flex items-center gap-2 text-[9px] font-bold text-zinc-400 uppercase tracking-tight">
-                    <ShieldCheck size={10} className="text-emerald-500" /> Protocolo de Segurança 2026
+                  <span className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                    <ShieldCheck size={14} className="text-emerald-500" /> Segurança dos Dados JV 2026
                   </span>
                 </div>
              </div>
-             <div className="flex items-center gap-4">
+             
+             <div className="flex items-center gap-6">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)} 
-                  className="px-6 py-3 text-xs font-black text-zinc-500 hover:text-white transition-all uppercase tracking-widest"
+                  className="px-8 py-4 text-xs font-black text-zinc-500 hover:text-white transition-all uppercase tracking-[0.3em] hover:bg-zinc-800 rounded-2xl"
                 >
-                  Cancelar
+                  Cancelar Operação
                 </button>
                 <button 
                   type="button"
                   onClick={() => handleSave()}
-                  className="px-12 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-xl transition-all shadow-xl shadow-cyan-900/20 active:scale-95 uppercase tracking-widest text-xs"
+                  className="px-16 py-6 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-2xl transition-all shadow-[0_15px_50px_-10px_rgba(6,182,212,0.5)] active:scale-95 uppercase tracking-[0.4em] text-base flex items-center gap-4"
                 >
-                  {editingOS ? 'Salvar Alterações' : 'Emitir e Iniciar OS'}
+                  <CheckCircle2 size={24} /> {editingOS ? 'Salvar Alterações' : 'Emitir e Iniciar OS'}
                 </button>
              </div>
           </div>
         </div>
       )}
 
-      {/* Picker de Catálogo Otimizado */}
+      {/* Seletor de Catálogo Otimizado */}
       {isServicePickerOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[75vh]">
-            <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
-              <h4 className="text-sm font-black uppercase tracking-widest text-zinc-100 flex items-center gap-3">
-                <Search size={16} className="text-cyan-500" /> Selecionar Serviço
-              </h4>
-              <button onClick={() => setIsServicePickerOpen(false)} className="text-zinc-500 hover:text-white p-2 hover:bg-zinc-800 rounded-lg">
-                <X size={18} />
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-3xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)] flex flex-col max-h-[80vh]">
+            <div className="p-8 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/40">
+              <div className="flex items-center gap-4">
+                <Search size={24} className="text-cyan-500" />
+                <h4 className="text-xl font-black uppercase tracking-widest text-zinc-100">Catálogo Profissional</h4>
+              </div>
+              <button onClick={() => setIsServicePickerOpen(false)} className="text-zinc-500 hover:text-white p-3 hover:bg-zinc-800 rounded-xl transition-all">
+                <X size={24} />
               </button>
             </div>
             
-            <div className="p-6 bg-zinc-950/20">
+            <div className="p-8 bg-zinc-950/20">
               <input 
                 autoFocus
                 type="text"
-                placeholder="Pesquisar no catálogo..."
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-3 text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500 font-semibold text-sm"
+                placeholder="Pesquisar por nome ou categoria..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-lg shadow-inner"
                 value={serviceSearch}
                 onChange={(e) => setServiceSearch(e.target.value)}
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
               {filteredCatalog.map(s => (
                 <button 
                   key={s.id}
                   onClick={() => addServiceFromCatalog(s)}
-                  className="w-full text-left p-4 rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-between border border-transparent hover:border-zinc-700 active:scale-95 group"
+                  className="w-full text-left p-6 rounded-2xl hover:bg-zinc-800 transition-all flex items-center justify-between border border-transparent hover:border-zinc-700 active:scale-98 group shadow-lg"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500">
-                      <Wrench size={16} />
+                  <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500 transition-colors shadow-2xl">
+                      <Wrench size={20} />
                     </div>
                     <div>
-                      <p className="font-bold text-zinc-100 text-sm">{s.nome}</p>
-                      <p className="text-[10px] text-zinc-500 italic max-w-[200px] truncate">{s.descricao || 'Serviço padrão'}</p>
+                      <p className="font-black text-zinc-100 text-lg uppercase tracking-tight leading-none">{s.nome}</p>
+                      <p className="text-xs text-zinc-500 italic mt-2 font-bold opacity-60 truncate max-w-[300px]">{s.descricao || 'Serviço técnico especializado.'}</p>
                     </div>
                   </div>
-                  <p className="text-emerald-400 font-mono font-bold text-sm">R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  <div className="text-right">
+                    <p className="text-emerald-400 font-mono font-black text-2xl tracking-tighter">R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mt-1 group-hover:text-cyan-500 transition-colors">Selecionar</p>
+                  </div>
                 </button>
               ))}
+              {filteredCatalog.length === 0 && (
+                <div className="text-center py-20 opacity-20 flex flex-col items-center gap-4">
+                  <AlertCircle size={48} />
+                  <p className="text-sm font-black uppercase tracking-widest">Nenhum serviço encontrado</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 bg-zinc-950/40 border-t border-zinc-800 text-center">
+               <button onClick={() => setIsServicePickerOpen(false)} className="text-[10px] font-black text-cyan-500 uppercase tracking-widest hover:text-white transition-colors">Fechar Catálogo</button>
             </div>
           </div>
         </div>
