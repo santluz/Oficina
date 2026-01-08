@@ -12,6 +12,7 @@
         font-family: 'Inter', sans-serif;
         background-color: #09090b;
         color: #f4f4f5;
+        overflow: hidden; /* Mantém o scroll apenas no conteúdo */
       }
       @keyframes fade-in {
         from { opacity: 0; transform: translateY(10px); }
@@ -23,8 +24,8 @@
       
       /* Scrollbar Personalizada */
       .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       .custom-scrollbar::-webkit-scrollbar-track {
         background: #18181b;
@@ -37,9 +38,14 @@
         background: #52525b;
       }
       
-      /* Fix para telas pequenas e modais grandes */
-      .modal-container {
-        max-height: calc(100vh - 40px);
+      /* Reset visual para inputs de número */
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type=number] {
+        -moz-appearance: textfield;
       }
     </style>
   <script type="importmap">
