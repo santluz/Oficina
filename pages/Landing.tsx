@@ -25,7 +25,6 @@ const Landing: React.FC = () => {
             </div>
             <span className="text-xl font-bold">JV Automóveis</span>
           </div>
-          {/* Botão removido da parte superior conforme solicitação */}
         </div>
       </nav>
 
@@ -107,7 +106,7 @@ const Landing: React.FC = () => {
             </div>
             <span className="font-bold">JV Automóveis</span>
           </div>
-          <p className="text-sm text-zinc-500">© 2024 JV Automóveis. Todos os direitos reservados.</p>
+          <p className="text-sm text-zinc-500">© 2026 JV Automóveis. Todos os direitos reservados.</p>
           <div className="flex gap-6 text-sm text-zinc-400">
             <a href="#" className="hover:text-white">Termos</a>
             <a href="#" className="hover:text-white">Privacidade</a>
