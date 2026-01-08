@@ -32,7 +32,7 @@ const Landing: React.FC = () => {
       <section className="pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
         <div className="animate-in">
           <span className={`inline-block px-4 py-1.5 rounded-full bg-${COLORS.primary}/10 text-${COLORS.primary} text-sm font-semibold mb-6 border border-cyan-500/20`}>
-            Versão 2.0 Disponível
+            Versão 2026 Profissional
           </span>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
             Gerencie sua Oficina com <br />
