@@ -100,14 +100,20 @@ export const db = {
   getOrders: (): ServiceOrder[] => getFromStorage(STORAGE_KEYS.ORDERS),
   addOrder: (order: Omit<ServiceOrder, 'id' | 'created_at'>) => {
     const orders = db.getOrders();
-    const nextId = (orders.reduce((max, o) => Math.max(max, parseInt(o.id)), 0) + 1).toString().padStart(4, '0');
+    
+    // Geração de ID robusta: busca o maior ID numérico existente e soma 1
+    const numericIds = orders.map(o => parseInt(o.id, 10)).filter(id => !isNaN(id));
+    const nextIdNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
+    const nextId = nextIdNum.toString().padStart(4, '0');
+
     const newOrder = { 
       ...order, 
       id: nextId, 
       created_at: new Date().toISOString() 
     };
-    // Adiciona ao início da lista para que apareça como "recente"
-    saveToStorage(STORAGE_KEYS.ORDERS, [newOrder, ...orders]);
+    
+    const updatedOrders = [newOrder, ...orders];
+    saveToStorage(STORAGE_KEYS.ORDERS, updatedOrders);
     return newOrder;
   },
   updateOrder: (id: string, updates: Partial<ServiceOrder>) => {

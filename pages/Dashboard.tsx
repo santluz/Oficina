@@ -17,34 +17,34 @@ import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const [data, setData] = useState({
-    clients: [],
-    vehicles: [],
+    clients: [] as any[],
+    vehicles: [] as any[],
     orders: [] as ServiceOrder[]
   });
 
-  // Carrega dados do banco sempre que o dashboard for exibido
+  // Carrega dados toda vez que o componente monta
   useEffect(() => {
-    setData({
-      clients: db.getClients(),
-      vehicles: db.getVehicles(),
-      orders: db.getOrders()
-    });
+    const orders = db.getOrders();
+    const clients = db.getClients();
+    const vehicles = db.getVehicles();
+    setData({ clients, vehicles, orders });
   }, []);
 
   const stats = useMemo(() => {
     const { orders, clients, vehicles } = data;
     
+    // Ordens que não estão concluídas nem canceladas
     const openOrdersList = orders.filter(o => o.status !== ServiceOrderStatus.COMPLETED && o.status !== ServiceOrderStatus.CANCELLED);
     
     // Faturamento REALIZADO (Apenas Concluídas)
     const realizedRevenue = orders
       .filter(o => o.status === ServiceOrderStatus.COMPLETED)
-      .reduce((sum, o) => sum + (o.orcamento_total || 0), 0);
+      .reduce((sum, o) => sum + (Number(o.orcamento_total) || 0), 0);
     
     // Previsão de Receita (Pendente + Em Andamento)
     const pendingRevenue = orders
       .filter(o => o.status === ServiceOrderStatus.PENDING || o.status === ServiceOrderStatus.IN_PROGRESS)
-      .reduce((sum, o) => sum + (o.orcamento_total || 0), 0);
+      .reduce((sum, o) => sum + (Number(o.orcamento_total) || 0), 0);
 
     const completedMonth = orders.filter(o => {
       const date = new Date(o.created_at);
@@ -82,8 +82,8 @@ const Dashboard: React.FC = () => {
     <div className="space-y-8 pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="animate-in">
-          <h2 className="text-3xl font-extrabold text-zinc-100 tracking-tight">Visão Geral</h2>
-          <p className="text-zinc-500">Acompanhe os números da sua oficina.</p>
+          <h2 className="text-3xl font-extrabold text-zinc-100 tracking-tight">Painel de Controle</h2>
+          <p className="text-zinc-500">Acompanhe o desempenho da JV Automóveis em tempo real.</p>
         </div>
         <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl shadow-sm">
           <Clock size={18} className="text-cyan-500" />
@@ -91,19 +91,19 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Grid Principal */}
+      {/* Grid Principal */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={<Users size={20} />} label="Clientes" value={stats.totalClients} color="cyan" />
+        <StatCard icon={<Users size={20} />} label="Total Clientes" value={stats.totalClients} color="cyan" />
         <StatCard icon={<ClipboardList size={20} />} label="OS em Aberto" value={stats.openOrders} color="amber" />
-        <StatCard icon={<CheckCircle2 size={20} />} label="Mês (Concluídas)" value={stats.completedMonth} color="indigo" />
-        <StatCard icon={<Zap size={20} />} label="Previsão Total" value={`R$ ${stats.totalPotential.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} color="emerald" />
+        <StatCard icon={<CheckCircle2 size={20} />} label="Concluídas (Mês)" value={stats.completedMonth} color="indigo" />
+        <StatCard icon={<Zap size={20} />} label="Previsão Financeira" value={`R$ ${stats.totalPotential.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} color="emerald" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna de Atividades e Faturamento */}
+        {/* Coluna Principal */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Cards de Faturamento Detalhado */}
+          {/* Faturamento Detalhado */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
@@ -112,18 +112,18 @@ const Dashboard: React.FC = () => {
                 R$ {stats.realizedRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
               <div className="flex items-center gap-2 text-[10px] font-bold px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full w-fit uppercase">
-                <CheckCircle2 size={12} /> OS Concluídas
+                <CheckCircle2 size={12} /> Somente Ordens Concluídas
               </div>
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl relative overflow-hidden group">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all" />
-              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Previsão em Aberto</h4>
+              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Valor Total em Aberto</h4>
               <p className="text-3xl font-black text-cyan-500 mb-4">
                 R$ {stats.pendingRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
               <div className="flex items-center gap-2 text-[10px] font-bold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full w-fit uppercase">
-                <Clock size={12} /> OS Pendentes / Em andamento
+                <Clock size={12} /> Pendentes e Em Andamento
               </div>
             </div>
           </div>
@@ -131,10 +131,10 @@ const Dashboard: React.FC = () => {
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col shadow-xl">
             <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
               <h3 className="text-lg font-bold flex items-center gap-2">
-                <Clock size={20} className="text-zinc-500" />
-                Ordens de Serviço Recentes
+                <ClipboardList size={20} className="text-zinc-500" />
+                Ordens Recentes
               </h3>
-              <Link to="/ordens-servico" className="text-sm text-cyan-500 hover:text-cyan-400 font-bold transition-colors">Ver todas</Link>
+              <Link to="/ordens-servico" className="text-sm text-cyan-500 hover:text-cyan-400 font-bold transition-colors">Ver listagem completa</Link>
             </div>
             <div className="flex-1 overflow-x-auto">
               <table className="w-full text-left">
@@ -143,7 +143,7 @@ const Dashboard: React.FC = () => {
                     <th className="px-6 py-4">OS #</th>
                     <th className="px-6 py-4">Veículo</th>
                     <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Valor</th>
+                    <th className="px-6 py-4 text-right">Orçamento</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
@@ -153,25 +153,23 @@ const Dashboard: React.FC = () => {
                       <tr key={order.id} className="hover:bg-zinc-800/30 transition-all group">
                         <td className="px-6 py-4 font-mono text-cyan-500 font-bold">#{order.id}</td>
                         <td className="px-6 py-4">
-                          <p className="font-semibold text-zinc-200">{vehicle?.modelo || 'N/A'}</p>
-                          <p className="text-xs text-zinc-500 uppercase font-mono">{vehicle?.placa || '------'}</p>
+                          <p className="font-semibold text-zinc-200">{vehicle?.modelo || 'Desconhecido'}</p>
+                          <p className="text-xs text-zinc-500 uppercase font-mono">{vehicle?.placa || '---'}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border transition-all ${getStatusStyles(order.status)}`}>
+                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black border transition-all uppercase ${getStatusStyles(order.status)}`}>
                             {order.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right font-bold text-zinc-100">
-                          R$ {order.orcamento_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        <td className="px-6 py-4 text-right font-black text-zinc-100">
+                          R$ {Number(order.orcamento_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
                     );
                   })}
                   {data.orders.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center text-zinc-600 italic">
-                        Nenhuma ordem de serviço registrada.
-                      </td>
+                      <td colSpan={4} className="px-6 py-12 text-center text-zinc-600 italic">Nenhuma OS encontrada.</td>
                     </tr>
                   )}
                 </tbody>
@@ -180,7 +178,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Coluna Lateral de Pendências */}
+        {/* Coluna Lateral */}
         <div className="space-y-6">
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl">
             <h4 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Aguardando Execução</h4>
@@ -191,16 +189,19 @@ const Dashboard: React.FC = () => {
                     <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 flex-shrink-0">
                       <AlertCircle size={16} />
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-zinc-200">OS #{os.id} - R$ {os.orcamento_total.toFixed(2)}</p>
-                      <p className="text-[10px] text-zinc-500 uppercase font-mono">Entrada: {new Date(os.data_entrada).toLocaleDateString()}</p>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <p className="text-xs font-bold text-zinc-200">OS #{os.id}</p>
+                        <p className="text-xs font-black text-amber-500">R$ {os.orcamento_total.toFixed(2)}</p>
+                      </div>
+                      <p className="text-[10px] text-zinc-500 uppercase font-mono mt-1">Entrada: {new Date(os.data_entrada).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-6">
                   <CheckCircle2 size={32} className="text-zinc-800 mx-auto mb-2" />
-                  <p className="text-xs text-zinc-600 font-medium">Nenhuma OS pendente!</p>
+                  <p className="text-xs text-zinc-600 font-medium">Nenhuma OS pendente.</p>
                 </div>
               )}
             </div>
@@ -211,21 +212,13 @@ const Dashboard: React.FC = () => {
               <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-500">
                 <BarChart3 size={16} />
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-widest">Serviços Mais Realizados</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400">Serviços Populares</h3>
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} layout="vertical">
                   <XAxis type="number" hide />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    stroke="#a1a1aa" 
-                    fontSize={10} 
-                    width={80}
-                    axisLine={false}
-                    tickLine={false}
-                  />
+                  <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={10} width={80} axisLine={false} tickLine={false} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
                     {chartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={index === 0 ? '#0891b2' : '#27272a'} />
@@ -234,14 +227,6 @@ const Dashboard: React.FC = () => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
-
-          <div className="p-8 rounded-3xl bg-gradient-to-br from-cyan-600 to-cyan-800 text-white shadow-lg shadow-cyan-900/20 relative overflow-hidden group">
-            <h4 className="text-lg font-bold mb-2">Novo Cadastro</h4>
-            <p className="text-xs text-cyan-100 opacity-80 mb-6">Cadastre novos serviços para agilizar seus próximos orçamentos.</p>
-            <Link to="/servicos" className="inline-flex items-center gap-2 text-xs font-black bg-white text-cyan-700 px-4 py-2 rounded-xl hover:bg-cyan-50 transition-colors shadow-sm">
-              ACESSAR CATÁLOGO
-            </Link>
           </div>
         </div>
       </div>
