@@ -20,7 +20,9 @@ import {
   ChevronRight,
   Menu,
   X,
-  User as UserIcon
+  User as UserIcon,
+  // Fix: Added ShoppingCart import
+  ShoppingCart
 } from 'lucide-react';
 
 export const COLORS = {
@@ -47,5 +49,7 @@ export const NAV_ITEMS = [
 export { 
   LayoutDashboard, Users, Car, Wrench, ClipboardList, ShieldCheck, Zap, 
   BarChart3, Clock, CheckCircle2, AlertCircle, Search, Plus, Edit, Trash2, 
-  LogOut, ChevronRight, Menu, X, UserIcon 
+  LogOut, ChevronRight, Menu, X, UserIcon, 
+  // Fix: Added ShoppingCart export
+  ShoppingCart 
 };
