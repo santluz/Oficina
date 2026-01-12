@@ -23,6 +23,16 @@ const ServiceOrders: React.FC = () => {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const { showToast } = useToast();
   
+  // Bloqueia o scroll do body quando a OS está aberta
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isModalOpen]);
+
   useEffect(() => {
     const data = db.getOrders();
     setOrders(data);
@@ -247,12 +257,12 @@ const ServiceOrders: React.FC = () => {
         variant="danger"
       />
 
-      {/* WORKSPACE DE GESTÃO DA OS - FULL SCREEN AJUSTADO */}
+      {/* WORKSPACE DE GESTÃO DA OS - FULL SCREEN COM SCROLL CORRIGIDO */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col animate-in fade-in duration-200">
           
-          {/* Header Workspace */}
-          <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between shadow-xl">
+          {/* Header Workspace (Sempre no topo) */}
+          <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between shadow-xl flex-shrink-0">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-cyan-600/10 flex items-center justify-center text-cyan-500 border border-cyan-500/20 rounded-lg">
                 <ClipboardList size={20} />
@@ -273,28 +283,28 @@ const ServiceOrders: React.FC = () => {
             </button>
           </div>
 
-          {/* Conteúdo Principal */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950 p-6 lg:p-10">
-            <div className="max-w-6xl mx-auto space-y-8">
+          {/* Área de Scroll Principal */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950 px-4 py-8 lg:px-10">
+            <div className="max-w-6xl mx-auto space-y-8 pb-10">
               
               {/* Seção 1: Cabeçalho Técnico */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Cliente & Veículo Card */}
-                <div className="lg:col-span-2 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                <div className="lg:col-span-2 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 flex flex-col justify-between shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
                     <Users size={18} className="text-cyan-500" />
-                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Vínculo de Proprietário e Unidade</h4>
+                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Identificação da OS</h4>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Cliente</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Proprietário (Cliente)</label>
                       {isViewMode ? (
                         <p className="text-lg font-bold text-zinc-100">{currentClientName}</p>
                       ) : (
                         <select 
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold"
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold transition-all"
                           value={formData.cliente_id}
                           onChange={e => setFormData(p => ({ ...p, cliente_id: e.target.value, veiculo_id: '' }))}
                         >
@@ -304,7 +314,7 @@ const ServiceOrders: React.FC = () => {
                       )}
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Veículo</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Unidade (Veículo)</label>
                       {isViewMode ? (
                         <p className="text-lg font-bold text-zinc-100">
                           {currentVehicleInfo ? `${currentVehicleInfo.marca} ${currentVehicleInfo.modelo} (${currentVehicleInfo.placa})` : '---'}
@@ -312,7 +322,7 @@ const ServiceOrders: React.FC = () => {
                       ) : (
                         <select 
                           disabled={!formData.cliente_id}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-20 font-bold"
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-20 font-bold transition-all"
                           value={formData.veiculo_id}
                           onChange={e => setFormData(p => ({ ...p, veiculo_id: e.target.value }))}
                         >
@@ -325,26 +335,26 @@ const ServiceOrders: React.FC = () => {
                 </div>
 
                 {/* Status & Data Card */}
-                <div className="bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
+                <div className="bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 shadow-lg">
                   <div className="flex items-center gap-3 mb-6">
                     <Clock size={18} className="text-cyan-500" />
-                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Cronograma e Situação</h4>
+                    <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">Cronograma</h4>
                   </div>
                   <div className="space-y-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Entrada no Sistema</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Entrada</label>
                       <input 
                         type="date" disabled={isViewMode}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold disabled:opacity-50"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold disabled:opacity-50 transition-all"
                         value={formData.data_entrada.split('T')[0]}
                         onChange={e => setFormData(p => ({ ...p, data_entrada: e.target.value }))}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status Atual</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Situação Operacional</label>
                       <select 
                         disabled={isViewMode}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-black uppercase text-[10px] tracking-widest"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-black uppercase text-[10px] tracking-widest transition-all"
                         value={formData.status}
                         onChange={e => setFormData(p => ({ ...p, status: e.target.value as ServiceOrderStatus }))}
                       >
@@ -355,57 +365,58 @@ const ServiceOrders: React.FC = () => {
                 </div>
               </div>
 
-              {/* Seção 2: Lista de Serviços e Peças */}
+              {/* Seção 2: Tabela de Serviços - COM OVERFLOW HORIZONTAL */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-3">
                     <ShoppingCart size={20} className="text-cyan-500" />
-                    <h4 className="text-xs font-black text-zinc-300 uppercase tracking-[0.4em]">Detalhamento do Orçamento</h4>
+                    <h4 className="text-xs font-black text-zinc-300 uppercase tracking-[0.4em]">Itens e Serviços</h4>
                   </div>
                   {!isViewMode && (
                     <div className="flex items-center gap-3">
                       <button 
                           type="button" onClick={addManualItem}
-                          className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest"
+                          className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest border border-zinc-700"
                       >
-                          <Plus size={14} /> Adicionar Item Avulso
+                          <Plus size={14} /> Item Manual
                       </button>
                       <button 
                           type="button" onClick={() => setIsServicePickerOpen(true)}
                           className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg shadow-cyan-900/10"
                       >
-                          <Search size={14} /> Catálogo de Serviços
+                          <Search size={14} /> Buscar Catálogo
                       </button>
                     </div>
                   )}
                 </div>
 
-                <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg">
-                  <table className="w-full text-left">
-                    <thead className="bg-zinc-950 border-b border-zinc-800 text-zinc-500 font-black uppercase text-[10px] tracking-widest">
+                {/* Tabela de Itens com Scroll Interno para Mobile/Telas pequenas */}
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl overflow-x-auto custom-scrollbar shadow-xl">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800 text-zinc-500 font-black uppercase text-[10px] tracking-widest">
                       <tr>
-                        <th className="px-6 py-4">Item / Serviço</th>
-                        <th className="px-6 py-4 w-24 text-center">Qtd.</th>
-                        <th className="px-6 py-4 w-40 text-center">Unitário</th>
-                        <th className="px-6 py-4 w-40 text-right">Subtotal</th>
+                        <th className="px-6 py-4">Descrição Técnica</th>
+                        <th className="px-6 py-4 w-24 text-center">Quant.</th>
+                        <th className="px-6 py-4 w-40 text-center">Valor Unitário</th>
+                        <th className="px-6 py-4 w-44 text-right">Subtotal</th>
                         {!isViewMode && <th className="px-6 py-4 w-16"></th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-800/50">
                       {formData.servicos.map((item, idx) => (
-                        <tr key={item.id} className="hover:bg-zinc-800/10 transition-all">
+                        <tr key={item.id} className="hover:bg-zinc-800/20 transition-all">
                           <td className="px-6 py-4">
                             {!isViewMode && item.servico_id === 'manual' ? (
                               <input 
                                 autoFocus
-                                type="text" placeholder="Nome da peça ou serviço..."
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500"
+                                type="text" placeholder="Descreva a peça ou mão de obra..."
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
                                 value={item.nome_servico}
                                 onChange={(e) => updateItem(idx, { nome_servico: e.target.value })}
                               />
                             ) : (
-                              <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                              <div className="flex items-center gap-2 py-1">
+                                <div className="w-2 h-2 rounded-full bg-cyan-500/50" />
                                 <span className="font-bold text-zinc-100 text-sm">{item.nome_servico}</span>
                               </div>
                             )}
@@ -416,7 +427,7 @@ const ServiceOrders: React.FC = () => {
                             ) : (
                               <input 
                                 type="number" min="1"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1.5 text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500"
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-2 text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500 tabular-nums transition-all"
                                 value={item.quantidade}
                                 onChange={(e) => updateItem(idx, { quantidade: parseInt(e.target.value) || 1 })}
                               />
@@ -427,10 +438,10 @@ const ServiceOrders: React.FC = () => {
                               <span className="text-zinc-300">R$ {item.preco_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                             ) : (
                               <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[10px] font-black">R$</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[10px] font-black uppercase">R$</span>
                                 <input 
                                   type="number" step="0.01"
-                                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-8 pr-2 py-1.5 text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500"
+                                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-center font-bold text-sm outline-none focus:ring-1 focus:ring-cyan-500 tabular-nums transition-all"
                                   value={item.preco_unitario}
                                   onChange={(e) => updateItem(idx, { preco_unitario: parseFloat(e.target.value) || 0 })}
                                 />
@@ -442,7 +453,7 @@ const ServiceOrders: React.FC = () => {
                           </td>
                           {!isViewMode && (
                             <td className="px-6 py-4 text-right">
-                              <button onClick={() => removeServiceFromOS(item.id)} className="text-zinc-600 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-500/10 transition-all">
+                              <button onClick={() => removeServiceFromOS(item.id)} className="text-zinc-600 hover:text-red-500 p-2 rounded-lg hover:bg-red-500/10 transition-all active:scale-90">
                                 <Trash2 size={16} />
                               </button>
                             </td>
@@ -451,8 +462,11 @@ const ServiceOrders: React.FC = () => {
                       ))}
                       {formData.servicos.length === 0 && (
                         <tr>
-                          <td colSpan={isViewMode ? 4 : 5} className="px-6 py-20 text-center text-zinc-600 italic text-sm">
-                            Nenhum item lançado neste chamado.
+                          <td colSpan={isViewMode ? 4 : 5} className="px-6 py-24 text-center text-zinc-600 italic text-sm bg-zinc-950/20">
+                            <div className="flex flex-col items-center gap-3 opacity-30">
+                              <ShoppingCart size={40} />
+                              <p>Nenhum item lançado até o momento.</p>
+                            </div>
                           </td>
                         </tr>
                       )}
@@ -461,21 +475,21 @@ const ServiceOrders: React.FC = () => {
                 </div>
               </div>
 
-              {/* Seção 3: Observações Técnicas */}
+              {/* Seção 3: Notas Técnicas */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3 px-2">
                   <Edit size={16} className="text-zinc-500" />
-                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Histórico Técnico e Notas do Mecânico</h4>
+                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Observações e Histórico de Reparos</h4>
                 </div>
                 {isViewMode ? (
-                  <div className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-zinc-300 text-sm leading-relaxed min-h-[100px] whitespace-pre-wrap">
-                    {formData.observacoes || 'Nenhuma observação registrada.'}
+                  <div className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-zinc-300 text-sm leading-relaxed min-h-[120px] whitespace-pre-wrap shadow-lg">
+                    {formData.observacoes || 'Nenhuma observação adicional foi registrada.'}
                   </div>
                 ) : (
                   <textarea 
-                    rows={4}
-                    placeholder="Descreva problemas relatados, diagnósticos técnicos ou peças que precisam de atenção..."
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all text-sm leading-relaxed"
+                    rows={5}
+                    placeholder="Descreva aqui o diagnóstico técnico, peças trocadas ou recomendações para o cliente..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all text-sm leading-relaxed shadow-lg resize-none"
                     value={formData.observacoes}
                     onChange={e => setFormData(p => ({ ...p, observacoes: e.target.value }))}
                   />
@@ -485,24 +499,24 @@ const ServiceOrders: React.FC = () => {
             </div>
           </div>
 
-          {/* Footer Workspace */}
-          <div className="px-10 py-6 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between shadow-2xl">
+          {/* Footer Workspace (Sempre na base) */}
+          <div className="px-6 py-6 lg:px-10 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between shadow-2xl flex-shrink-0 z-50">
             <div className="flex items-center gap-10">
-              <div>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total Consolidado</p>
+              <div className="flex flex-col">
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Total do Orçamento</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-sm text-zinc-600 font-black">R$</span>
-                  <h5 className="text-4xl font-black text-emerald-400 font-mono tracking-tighter leading-none">
+                  <h5 className="text-3xl lg:text-4xl font-black text-emerald-400 font-mono tracking-tighter leading-none tabular-nums">
                     {(Number(formData.orcamento_total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </h5>
                 </div>
               </div>
-              <div className="hidden xl:flex flex-col gap-1 border-l border-zinc-800 pl-10 opacity-50">
+              <div className="hidden xl:flex flex-col gap-1 border-l border-zinc-800 pl-10 opacity-30">
                 <span className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase tracking-widest">
-                  <Zap size={14} className="text-cyan-500" /> Sincronização Ativa
+                  <Zap size={14} className="text-cyan-500" /> Transmissão Segura
                 </span>
                 <span className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase tracking-widest">
-                  <ShieldCheck size={14} className="text-emerald-500" /> Dados Criptografados
+                  <ShieldCheck size={14} className="text-emerald-500" /> Banco de Dados JV
                 </span>
               </div>
             </div>
@@ -512,14 +526,14 @@ const ServiceOrders: React.FC = () => {
                 type="button" onClick={() => setIsModalOpen(false)} 
                 className="px-6 py-3 text-[10px] font-black text-zinc-500 hover:text-white transition-all uppercase tracking-widest hover:bg-zinc-800 rounded-xl"
               >
-                {isViewMode ? 'Fechar Consulta' : 'Cancelar'}
+                {isViewMode ? 'Voltar' : 'Cancelar'}
               </button>
               {!isViewMode && (
                 <button 
                   type="button" onClick={() => handleSave()}
-                  className="px-10 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-xs flex items-center gap-3"
+                  className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-xs flex items-center gap-3"
                 >
-                  <CheckCircle2 size={18} /> {editingOS ? 'Salvar Alterações' : 'Concluir Chamado'}
+                  <CheckCircle2 size={18} /> {editingOS ? 'Salvar Alterações' : 'Finalizar Registro'}
                 </button>
               )}
             </div>
@@ -527,25 +541,25 @@ const ServiceOrders: React.FC = () => {
         </div>
       )}
 
-      {/* Seletor de Serviço (Catálogo) */}
+      {/* Seletor de Serviço (Catálogo) - Scroll Corrigido */}
       {isServicePickerOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[70vh]">
-            <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/40">
               <div className="flex items-center gap-3">
                 <Search size={20} className="text-cyan-500" />
-                <h4 className="text-sm font-black uppercase tracking-widest text-zinc-100">Catálogo de Serviços</h4>
+                <h4 className="text-sm font-black uppercase tracking-widest text-zinc-100">Catálogo de Serviços JV</h4>
               </div>
               <button onClick={() => setIsServicePickerOpen(false)} className="text-zinc-500 hover:text-white p-2 hover:bg-zinc-800 rounded-lg transition-all">
                 <X size={20} />
               </button>
             </div>
             
-            <div className="p-4 bg-zinc-950/40">
+            <div className="p-4 bg-zinc-950/20 border-b border-zinc-800">
               <input 
                 autoFocus
-                type="text" placeholder="Filtrar serviços..."
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold"
+                type="text" placeholder="Filtrar por nome ou código..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold transition-all"
                 value={serviceSearch}
                 onChange={(e) => setServiceSearch(e.target.value)}
               />
@@ -559,20 +573,29 @@ const ServiceOrders: React.FC = () => {
                   className="w-full text-left p-4 rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-between border border-transparent hover:border-zinc-700 active:scale-98 group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500 transition-colors border border-zinc-800">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500 transition-colors border border-zinc-800 shadow-inner">
                       <Wrench size={16} />
                     </div>
                     <div>
                       <p className="font-bold text-zinc-100 text-sm">{s.nome}</p>
-                      <p className="text-[10px] text-zinc-500 italic line-clamp-1">{s.descricao || 'Serviço técnico padrão.'}</p>
+                      <p className="text-[10px] text-zinc-500 italic line-clamp-1 opacity-70">{s.descricao || 'Serviço técnico padronizado.'}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-emerald-400 font-mono font-bold">R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest mt-1">Selecionar</p>
+                    <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest mt-1 group-hover:text-cyan-500">Adicionar</p>
                   </div>
                 </button>
               ))}
+              {filteredCatalog.length === 0 && (
+                <div className="text-center py-12 opacity-20">
+                  <p className="text-sm italic">Nenhum serviço correspondente.</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 bg-zinc-950/40 border-t border-zinc-800 text-center">
+              <p className="text-[9px] text-zinc-500 uppercase tracking-widest">Selecione um item para vincular à OS</p>
             </div>
           </div>
         </div>
