@@ -233,86 +233,86 @@ const ServiceOrders: React.FC = () => {
         variant="danger"
       />
 
-      {/* WORKSPACE ULTRA-WIDE - TELA TOTALMENTE ABERTA */}
+      {/* WORKSPACE - TELA CHEIA AJUSTADA */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col animate-in fade-in duration-300">
           
-          {/* Barra de Título (Header) - Escala Aumentada */}
-          <div className="px-12 py-8 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between flex-shrink-0 shadow-2xl">
-            <div className="flex items-center gap-8">
-              <div className="w-16 h-16 bg-cyan-600/10 flex items-center justify-center text-cyan-500 border border-cyan-500/20 rounded-[1.5rem] shadow-[0_0_50px_rgba(6,182,212,0.15)]">
-                <ClipboardList size={36} />
+          {/* Header Workspace - Escala Refinada */}
+          <div className="px-8 py-4 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between flex-shrink-0 shadow-lg">
+            <div className="flex items-center gap-5">
+              <div className="w-12 h-12 bg-cyan-600/10 flex items-center justify-center text-cyan-500 border border-cyan-500/20 rounded-xl">
+                <ClipboardList size={24} />
               </div>
               <div>
-                <h3 className="text-4xl font-black text-zinc-100 uppercase tracking-tighter leading-none">
-                  {editingOS ? `ORDEM DE SERVIÇO #${editingOS.id}` : 'ABERTURA DE NOVA ORDEM DE SERVIÇO'}
+                <h3 className="text-2xl font-black text-zinc-100 uppercase tracking-tight">
+                  {editingOS ? `ORDEM DE SERVIÇO #${editingOS.id}` : 'NOVA ORDEM DE SERVIÇO'}
                 </h3>
-                <div className="flex items-center gap-6 mt-3">
-                  <span className="text-xs text-zinc-500 uppercase tracking-[0.6em] font-black">CENTRAL DE OPERAÇÕES JV AUTOMÓVEIS</span>
-                  <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_10px_rgba(6,182,212,1)]" />
-                  <span className="text-xs text-cyan-500 uppercase tracking-[0.6em] font-black">AMBIENTE DE GESTÃO FULL-SCREEN 2026</span>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-black">JV AUTOMÓVEIS</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                  <span className="text-[10px] text-cyan-500 uppercase tracking-[0.4em] font-black">SISTEMA INTEGRADO</span>
                 </div>
               </div>
             </div>
             <button 
               onClick={() => setIsModalOpen(false)} 
-              className="group p-5 text-zinc-500 hover:text-white bg-zinc-800 rounded-3xl hover:bg-red-600 transition-all border border-zinc-700 shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+              className="p-3 text-zinc-500 hover:text-white bg-zinc-800 rounded-xl hover:bg-zinc-700 transition-all border border-zinc-700 shadow-lg"
             >
-              <X size={36} />
+              <X size={24} />
             </button>
           </div>
 
-          {/* Área de Trabalho - Workspace Expansivo Sem Limites de Largura */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950 px-12 py-12 lg:px-20">
-            <form id="os-form" onSubmit={handleSave} className="w-full max-w-[1920px] mx-auto space-y-16">
+          {/* Área Principal Workspace */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-950 px-8 py-8 lg:px-12">
+            <form id="os-form" onSubmit={handleSave} className="w-full max-w-7xl mx-auto space-y-10">
               
-              {/* Seção 1: Triagem e Identificação */}
-              <section className="bg-zinc-900/30 p-12 rounded-[3.5rem] border border-zinc-800/40 shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
-                <div className="flex items-center gap-5 mb-12 border-l-[6px] border-cyan-500 pl-8">
-                  <h4 className="text-base font-black text-zinc-200 uppercase tracking-[0.6em]">Informações de Registro do Chamado</h4>
+              {/* Seção 1: Identificação do Chamado */}
+              <section className="bg-zinc-900/40 p-8 rounded-[2rem] border border-zinc-800/50 shadow-xl">
+                <div className="flex items-center gap-4 mb-8 border-l-4 border-cyan-500 pl-5">
+                  <h4 className="text-xs font-black text-zinc-400 uppercase tracking-[0.4em]">Triagem e Registro</h4>
                 </div>
-                <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] ml-1">Proprietário do Veículo</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Proprietário (Cliente)</label>
                     <select 
                       required
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.5rem] px-8 py-6 text-zinc-100 outline-none focus:ring-4 focus:ring-cyan-500/20 font-black text-2xl transition-all shadow-inner appearance-none cursor-pointer"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-base transition-all appearance-none cursor-pointer"
                       value={formData.cliente_id}
                       onChange={e => setFormData(p => ({ ...p, cliente_id: e.target.value, veiculo_id: '' }))}
                     >
-                      <option value="">Buscar no Banco de Clientes...</option>
+                      <option value="">Selecionar Cliente...</option>
                       {clients.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] ml-1">Identificação do Veículo</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Veículo Relacionado</label>
                     <select 
                       required
                       disabled={!formData.cliente_id}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.5rem] px-8 py-6 text-zinc-100 outline-none focus:ring-4 focus:ring-cyan-500/20 disabled:opacity-10 font-black text-2xl transition-all shadow-inner appearance-none cursor-pointer"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-20 font-bold text-base transition-all appearance-none cursor-pointer"
                       value={formData.veiculo_id}
                       onChange={e => setFormData(p => ({ ...p, veiculo_id: e.target.value }))}
                     >
-                      <option value="">Selecionar Unidade Relacionada...</option>
+                      <option value="">Selecionar Veículo...</option>
                       {filteredVehicles.map(v => <option key={v.id} value={v.id}>{v.marca} {v.modelo} • {v.placa}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] ml-1">Cronograma de Entrada</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Data de Entrada</label>
                     <div className="relative">
-                      <Clock size={28} className="absolute left-8 top-1/2 -translate-y-1/2 text-cyan-500" />
+                      <Clock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-cyan-500" />
                       <input 
                         type="date" required
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.5rem] pl-20 pr-8 py-6 text-zinc-100 outline-none focus:ring-4 focus:ring-cyan-500/20 font-black text-2xl transition-all shadow-inner"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-12 pr-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-base transition-all"
                         value={formData.data_entrada.split('T')[0]}
                         onChange={e => setFormData(p => ({ ...p, data_entrada: e.target.value }))}
                       />
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] ml-1">Status Operacional</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Status Operacional</label>
                     <select 
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.5rem] px-8 py-6 text-zinc-100 outline-none focus:ring-4 focus:ring-cyan-500/20 font-black uppercase text-base tracking-[0.2em] transition-all shadow-inner cursor-pointer"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-5 py-4 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-black uppercase text-xs tracking-widest transition-all cursor-pointer"
                       value={formData.status}
                       onChange={e => setFormData(p => ({ ...p, status: e.target.value as ServiceOrderStatus }))}
                     >
@@ -322,107 +322,104 @@ const ServiceOrders: React.FC = () => {
                 </div>
               </section>
 
-              {/* Seção 2: Tabela de Itens em Escala Máxima */}
-              <section className="space-y-10">
-                <div className="flex items-center justify-between px-6">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 bg-cyan-500/10 rounded-2xl border border-cyan-500/20">
-                      <ShoppingCart size={32} className="text-cyan-500" />
+              {/* Seção 2: Itens do Orçamento */}
+              <section className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-cyan-500/10 rounded-lg">
+                      <ShoppingCart size={20} className="text-cyan-500" />
                     </div>
-                    <div>
-                      <h4 className="text-2xl font-black text-zinc-100 uppercase tracking-[0.4em]">Detalhamento Técnico do Orçamento</h4>
-                      <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1 opacity-50">Adicione peças, fluidos e mão de obra especializada</p>
-                    </div>
+                    <h4 className="text-xs font-black text-zinc-300 uppercase tracking-[0.4em]">Itens de Peças e Serviços</h4>
                   </div>
-                  <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-4">
                     <button 
                         type="button" 
                         onClick={addManualItem}
-                        className="px-10 py-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-[1.5rem] text-sm font-black flex items-center gap-4 transition-all uppercase tracking-[0.2em] border border-zinc-700 shadow-2xl active:scale-95"
+                        className="px-5 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest border border-zinc-700 shadow-md"
                     >
-                        <Plus size={24} /> Item Fora do Catálogo
+                        <Plus size={16} /> Item Avulso
                     </button>
                     <button 
                         type="button" 
                         onClick={() => setIsServicePickerOpen(true)}
-                        className="px-12 py-6 bg-cyan-600 hover:bg-cyan-500 text-white rounded-[1.5rem] text-sm font-black flex items-center gap-4 transition-all uppercase tracking-[0.2em] shadow-[0_25px_50px_-12px_rgba(6,182,212,0.5)] active:scale-95"
+                        className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-widest shadow-lg shadow-cyan-900/20"
                     >
-                        <Search size={24} /> Consultar Catálogo JV
+                        <Search size={16} /> Buscar Catálogo
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-[4rem] overflow-hidden shadow-[0_50px_120px_rgba(0,0,0,0.6)]">
+                <div className="bg-zinc-900/30 border border-zinc-800 rounded-[1.5rem] overflow-hidden shadow-xl">
                   <table className="w-full text-left">
-                      <thead className="bg-zinc-950/90 border-b border-zinc-800 text-zinc-500 font-black uppercase text-sm tracking-[0.3em]">
+                      <thead className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-500 font-black uppercase text-[10px] tracking-widest">
                           <tr>
-                              <th className="px-12 py-8">Discriminação de Peças e Mão de Obra</th>
-                              <th className="px-12 py-8 w-48 text-center">Quantidade</th>
-                              <th className="px-12 py-8 w-64 text-center">Valor Unitário</th>
-                              <th className="px-12 py-8 w-72 text-right">Subtotal Líquido</th>
-                              <th className="px-12 py-8 w-28"></th>
+                              <th className="px-8 py-4">Discriminação Técnica</th>
+                              <th className="px-8 py-4 w-32 text-center">Quant.</th>
+                              <th className="px-8 py-4 w-44 text-center">Preço Unitário</th>
+                              <th className="px-8 py-4 w-48 text-right">Subtotal</th>
+                              <th className="px-8 py-4 w-20"></th>
                           </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-800/40">
                           {formData.servicos.map((item, idx) => (
-                              <tr key={item.id} className="hover:bg-zinc-800/10 transition-all group">
-                                  <td className="px-12 py-10">
+                              <tr key={item.id} className="hover:bg-zinc-800/10 transition-all">
+                                  <td className="px-8 py-5">
                                       {item.servico_id === 'manual' ? (
                                         <input 
                                           autoFocus
                                           type="text"
-                                          placeholder="Descreva o item com clareza técnica..."
-                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.25rem] px-8 py-5 text-zinc-100 font-black text-2xl outline-none focus:ring-4 focus:ring-cyan-500/20 shadow-inner"
+                                          placeholder="Ex: Óleo de Motor 5w30..."
+                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-zinc-100 font-bold text-sm outline-none focus:ring-2 focus:ring-cyan-500"
                                           value={item.nome_servico}
                                           onChange={(e) => updateItem(idx, { nome_servico: e.target.value })}
                                         />
                                       ) : (
-                                        <div className="flex items-center gap-6">
-                                          <div className="w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.8)]" />
-                                          <span className="font-black text-zinc-100 text-3xl tracking-tighter leading-none">{item.nome_servico}</span>
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                                          <span className="font-bold text-zinc-100 text-base">{item.nome_servico}</span>
                                         </div>
                                       )}
                                   </td>
-                                  <td className="px-12 py-10">
+                                  <td className="px-8 py-5">
                                       <input 
                                           type="number" min="1" 
-                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.25rem] px-8 py-5 text-center font-black text-3xl outline-none focus:ring-4 focus:ring-cyan-500/20 shadow-inner tabular-nums" 
+                                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-center font-bold text-base outline-none focus:ring-2 focus:ring-cyan-500 tabular-nums" 
                                           value={item.quantidade} 
                                           onChange={(e) => updateItem(idx, { quantidade: parseInt(e.target.value) || 1 })}
                                       />
                                   </td>
-                                  <td className="px-12 py-10 text-center">
+                                  <td className="px-8 py-5 text-center">
                                       <div className="relative">
-                                        <span className="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-600 text-lg font-black">R$</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 text-[10px] font-black">R$</span>
                                         <input 
                                             type="number" step="0.01"
-                                            className="w-full bg-zinc-950 border border-zinc-800 rounded-[1.25rem] pl-20 pr-8 py-5 font-mono text-center font-black text-3xl outline-none focus:ring-4 focus:ring-cyan-500/20 shadow-inner tabular-nums" 
+                                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 font-mono text-center font-bold text-base outline-none focus:ring-2 focus:ring-cyan-500 tabular-nums" 
                                             value={item.preco_unitario} 
                                             onChange={(e) => updateItem(idx, { preco_unitario: parseFloat(e.target.value) || 0 })}
                                         />
                                       </div>
                                   </td>
-                                  <td className="px-12 py-10 text-zinc-100 text-right font-mono font-black text-4xl tracking-tighter leading-none tabular-nums">
-                                    <span className="text-sm text-zinc-600 mr-4 font-sans font-black uppercase tracking-widest">R$</span>
+                                  <td className="px-8 py-5 text-zinc-100 text-right font-mono font-black text-lg tabular-nums">
+                                    <span className="text-[10px] text-zinc-600 mr-2 font-sans font-bold">R$</span>
                                     {(Number(item.subtotal) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                   </td>
-                                  <td className="px-12 py-10 text-right">
+                                  <td className="px-8 py-5 text-right">
                                       <button 
                                         type="button" 
                                         onClick={() => removeServiceFromOS(item.id)} 
-                                        className="text-zinc-700 hover:text-red-500 transition-all p-5 rounded-[1.25rem] hover:bg-red-500/10 group-hover:scale-110 active:scale-90"
+                                        className="text-zinc-600 hover:text-red-500 transition-all p-2 rounded-lg hover:bg-red-500/10"
                                       >
-                                          <Trash2 size={32} />
+                                          <Trash2 size={18} />
                                       </button>
                                   </td>
                               </tr>
                           ))}
                           {formData.servicos.length === 0 && (
                               <tr>
-                                <td colSpan={5} className="px-12 py-64 text-center bg-zinc-950/20">
-                                  <div className="flex flex-col items-center gap-10 opacity-10">
-                                    <ShoppingCart size={120} className="text-zinc-500" />
-                                    <p className="font-black text-zinc-500 uppercase tracking-[1em] text-2xl">WORKSPACE AGUARDANDO DADOS</p>
+                                <td colSpan={5} className="px-8 py-24 text-center bg-zinc-950/20">
+                                  <div className="flex flex-col items-center gap-4 opacity-10">
+                                    <ShoppingCart size={48} className="text-zinc-500" />
+                                    <p className="font-black text-zinc-500 uppercase tracking-[0.5em] text-xs">Aguardando Lançamentos</p>
                                   </div>
                                 </td>
                               </tr>
@@ -433,17 +430,15 @@ const ServiceOrders: React.FC = () => {
               </section>
 
               {/* Seção 3: Notas Técnicas */}
-              <section className="space-y-8">
-                <div className="flex items-center gap-6 px-6">
-                  <div className="p-3 bg-zinc-800 rounded-xl border border-zinc-700">
-                    <Edit size={24} className="text-zinc-500" />
-                  </div>
-                  <h4 className="text-base font-black text-zinc-400 uppercase tracking-[0.6em]">Histórico Técnico e Diagnóstico de Diagnóstico</h4>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 px-2">
+                  <Edit size={16} className="text-zinc-500" />
+                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.4em]">Diagnóstico e Notas do Técnico</h4>
                 </div>
                 <textarea 
-                  rows={6}
-                  placeholder="Relatório executivo sobre a condição mecânica, peças indicadas para manutenção futura e considerações sobre a garantia dos serviços prestados..."
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-[3.5rem] px-12 py-10 text-zinc-100 outline-none focus:ring-4 focus:ring-cyan-500/20 transition-all text-2xl leading-relaxed placeholder:text-zinc-800 shadow-[0_30px_70px_rgba(0,0,0,0.4)]"
+                  rows={4}
+                  placeholder="Relato de problemas encontrados, diagnóstico preliminar ou recomendações técnicas..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-[1.5rem] px-8 py-6 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all text-base leading-relaxed placeholder:text-zinc-800 shadow-lg"
                   value={formData.observacoes}
                   onChange={e => setFormData(p => ({ ...p, observacoes: e.target.value }))}
                 />
@@ -451,105 +446,105 @@ const ServiceOrders: React.FC = () => {
             </form>
           </div>
 
-          {/* RODAPÉ ESTRATÉGICO - CONTROLE FINANCEIRO (Sticky) */}
-          <div className="px-16 py-10 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-50 shadow-[0_-40px_100px_rgba(0,0,0,0.8)]">
-             <div className="flex items-center gap-20">
+          {/* RODAPÉ DE CONTROLE (Sticky) - Escala Ajustada */}
+          <div className="px-10 py-6 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between flex-shrink-0 z-50 shadow-2xl">
+             <div className="flex items-center gap-12">
                 <div className="flex flex-col">
-                  <p className="text-sm font-black text-zinc-500 uppercase tracking-[0.5em] mb-4">Valor Consolidado do Chamado</p>
-                  <div className="flex items-baseline gap-6">
-                    <span className="text-2xl text-zinc-600 font-black tracking-widest uppercase">Total R$</span>
-                    <h5 className="text-[7rem] font-black text-emerald-400 font-mono tracking-tighter leading-none tabular-nums shadow-emerald-500/10 drop-shadow-2xl">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Valor Total Consolidado</p>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-sm text-zinc-600 font-black">R$</span>
+                    <h5 className="text-5xl font-black text-emerald-400 font-mono tracking-tighter leading-none tabular-nums">
                       {(Number(formData.orcamento_total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </h5>
                   </div>
                 </div>
-                <div className="hidden 2xl:flex flex-col gap-4 border-l-2 border-zinc-800 pl-20">
-                  <span className="flex items-center gap-4 text-sm font-black text-zinc-400 uppercase tracking-[0.4em]">
-                    <Zap size={24} className="text-cyan-500" /> Sincronização em Tempo Real Ativa
+                <div className="hidden xl:flex flex-col gap-1 border-l border-zinc-800 pl-10">
+                  <span className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+                    <Zap size={14} className="text-cyan-500" /> Sincronização Ativa
                   </span>
-                  <span className="flex items-center gap-4 text-sm font-black text-zinc-400 uppercase tracking-[0.4em]">
-                    <ShieldCheck size={24} className="text-emerald-500" /> Protocolo de Segurança JV 2026.04
+                  <span className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+                    <ShieldCheck size={14} className="text-emerald-500" /> Segurança dos Dados JV
                   </span>
                 </div>
              </div>
              
-             <div className="flex items-center gap-10">
+             <div className="flex items-center gap-6">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)} 
-                  className="px-12 py-8 text-sm font-black text-zinc-500 hover:text-white transition-all uppercase tracking-[0.6em] hover:bg-zinc-800 rounded-[2rem]"
+                  className="px-6 py-4 text-[10px] font-black text-zinc-500 hover:text-white transition-all uppercase tracking-[0.3em] hover:bg-zinc-800 rounded-xl"
                 >
-                  Cancelar Operação
+                  Cancelar
                 </button>
                 <button 
                   type="button"
                   onClick={() => handleSave()}
-                  className="px-24 py-10 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-[2.5rem] transition-all shadow-[0_30px_80px_-15px_rgba(6,182,212,0.6)] active:scale-95 uppercase tracking-[0.6em] text-xl flex items-center gap-8"
+                  className="px-10 py-5 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-2xl transition-all shadow-xl active:scale-95 uppercase tracking-[0.3em] text-sm flex items-center gap-3"
                 >
-                  <CheckCircle2 size={40} /> {editingOS ? 'Salvar Registro' : 'Lançar Ordem de Serviço'}
+                  <CheckCircle2 size={20} /> {editingOS ? 'Salvar Registro' : 'Lançar Ordem de Serviço'}
                 </button>
              </div>
           </div>
         </div>
       )}
 
-      {/* Catálogo Workspace em Tela Ampla */}
+      {/* Catálogo Workspace AJUSTADO */}
       {isServicePickerOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-16 bg-black/98 backdrop-blur-3xl animate-in fade-in duration-300">
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-7xl rounded-[4.5rem] overflow-hidden shadow-[0_0_200px_rgba(0,0,0,1)] flex flex-col max-h-[90vh]">
-            <div className="p-12 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
-              <div className="flex items-center gap-8">
-                <Search size={40} className="text-cyan-500" />
-                <h4 className="text-3xl font-black uppercase tracking-[0.5em] text-zinc-100 leading-none">Catálogo Geral JV</h4>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-in fade-in duration-300">
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="p-8 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/40">
+              <div className="flex items-center gap-4">
+                <Search size={24} className="text-cyan-500" />
+                <h4 className="text-lg font-black uppercase tracking-widest text-zinc-100">Catálogo JV</h4>
               </div>
-              <button onClick={() => setIsServicePickerOpen(false)} className="text-zinc-500 hover:text-white p-6 hover:bg-zinc-800 rounded-3xl transition-all">
-                <X size={48} />
+              <button onClick={() => setIsServicePickerOpen(false)} className="text-zinc-500 hover:text-white p-2 hover:bg-zinc-800 rounded-lg transition-all">
+                <X size={24} />
               </button>
             </div>
             
-            <div className="p-12 bg-zinc-950/40">
+            <div className="p-6 bg-zinc-950/20">
               <input 
                 autoFocus
                 type="text"
-                placeholder="Pesquisar por descrição, código ou categoria de serviço..."
-                className="w-full bg-zinc-900 border-2 border-zinc-800 rounded-[2.5rem] px-12 py-8 text-zinc-100 outline-none focus:border-cyan-500 font-black text-3xl shadow-inner placeholder:text-zinc-800 transition-all"
+                placeholder="Filtrar serviços..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-3 text-zinc-100 outline-none focus:ring-2 focus:ring-cyan-500 font-bold text-base shadow-inner"
                 value={serviceSearch}
                 onChange={(e) => setServiceSearch(e.target.value)}
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-12 space-y-6 custom-scrollbar bg-zinc-900/40">
+            <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
               {filteredCatalog.map(s => (
                 <button 
                   key={s.id}
                   onClick={() => addServiceFromCatalog(s)}
-                  className="w-full text-left p-10 rounded-[3rem] hover:bg-zinc-800 transition-all flex items-center justify-between border-2 border-transparent hover:border-zinc-700 active:scale-98 group shadow-2xl"
+                  className="w-full text-left p-5 rounded-xl hover:bg-zinc-800 transition-all flex items-center justify-between border border-transparent hover:border-zinc-700 active:scale-98 group"
                 >
-                  <div className="flex items-center gap-10">
-                    <div className="w-20 h-20 rounded-3xl bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500 transition-colors shadow-inner border-2 border-zinc-800">
-                      <Wrench size={36} />
+                  <div className="flex items-center gap-5">
+                    <div className="w-10 h-10 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:text-cyan-500 transition-colors border border-zinc-800">
+                      <Wrench size={20} />
                     </div>
                     <div>
-                      <p className="font-black text-zinc-100 text-3xl uppercase tracking-tighter leading-none group-hover:text-cyan-400 transition-colors">{s.nome}</p>
-                      <p className="text-base text-zinc-500 italic mt-4 font-bold opacity-60 line-clamp-1 max-w-[600px]">{s.descricao || 'Serviço padronizado JV Automóveis.'}</p>
+                      <p className="font-black text-zinc-100 text-base uppercase tracking-tight leading-none">{s.nome}</p>
+                      <p className="text-[10px] text-zinc-500 italic mt-2 font-bold opacity-60 line-clamp-1">{s.descricao || 'Serviço técnico padrão.'}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-emerald-400 font-mono font-black text-5xl tracking-tighter leading-none">R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    <p className="text-xs text-zinc-600 font-black uppercase tracking-[0.6em] mt-4 group-hover:text-cyan-500 transition-colors">Vincular Item</p>
+                    <p className="text-emerald-400 font-mono font-black text-lg">R$ {s.preco_base?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest mt-1">Selecionar</p>
                   </div>
                 </button>
               ))}
               {filteredCatalog.length === 0 && (
-                <div className="text-center py-48 opacity-10 flex flex-col items-center gap-10">
-                  <AlertCircle size={96} />
-                  <p className="text-2xl font-black uppercase tracking-[1em]">RESULTADO VAZIO</p>
+                <div className="text-center py-20 opacity-20 flex flex-col items-center gap-4">
+                  <AlertCircle size={48} />
+                  <p className="text-xs font-black uppercase tracking-widest">Nenhum serviço encontrado</p>
                 </div>
               )}
             </div>
             
-            <div className="p-10 bg-zinc-950/80 border-t border-zinc-800 text-center">
-               <button onClick={() => setIsServicePickerOpen(false)} className="text-xs font-black text-zinc-500 uppercase tracking-[0.8em] hover:text-cyan-500 transition-colors">Voltar para a Ordem de Serviço</button>
+            <div className="p-6 bg-zinc-950/60 border-t border-zinc-800 text-center">
+               <button onClick={() => setIsServicePickerOpen(false)} className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] hover:text-cyan-500 transition-colors">Fechar Catálogo</button>
             </div>
           </div>
         </div>
