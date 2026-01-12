@@ -8,19 +8,21 @@ import {
   ClipboardList, 
   ShieldCheck, 
   Zap, 
-  BarChart3,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  LogOut,
-  ChevronRight,
-  Menu,
-  X,
+  BarChart3, 
+  Clock, 
+  CheckCircle2, 
+  AlertCircle, 
+  Search, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  LogOut, 
+  ChevronRight, 
+  Menu, 
+  X, 
   User as UserIcon,
+  // Added missing Eye icon import
+  Eye,
   // Fix: Added ShoppingCart import
   ShoppingCart
 } from 'lucide-react';
@@ -50,6 +52,8 @@ export {
   LayoutDashboard, Users, Car, Wrench, ClipboardList, ShieldCheck, Zap, 
   BarChart3, Clock, CheckCircle2, AlertCircle, Search, Plus, Edit, Trash2, 
   LogOut, ChevronRight, Menu, X, UserIcon, 
+  // Added missing Eye icon export
+  Eye,
   // Fix: Added ShoppingCart export
   ShoppingCart 
 };
